@@ -215,12 +215,33 @@ namespace OvertimeScheduler.Services
 
         private static string FormatEmployeeNameExcel(Employee emp, DateTime date)
         {
+            DateTime blockStart = date.Date;
+            DateTime blockEnd = date.Date;
+
+            if (date.DayOfWeek == DayOfWeek.Monday)
+            {
+                blockEnd = date.AddDays(4).Date;
+            }
+
+            var overlappingLeaves = emp.LeavePeriods
+                .Where(lp => lp.StartDate <= blockEnd && lp.EndDate >= blockStart)
+                .ToList();
+
+            string noteStr = "";
+            if (overlappingLeaves.Count > 0)
+            {
+                var notes = overlappingLeaves
+                    .Select(lp => string.IsNullOrEmpty(lp.Note) ? $"{lp.StartDate:dd/MM}-{lp.EndDate:dd/MM} nghỉ" : lp.Note)
+                    .Distinct();
+                noteStr = " (" + string.Join(", ", notes) + ")";
+            }
+
             if (emp.FixedOvertimeHours.ContainsKey(date))
             {
                 double hours = emp.FixedOvertimeHours[date];
-                return $"{emp.Name.ToUpper()} {hours}h";
+                return $"{emp.Name.ToUpper()} {hours}h{noteStr}";
             }
-            return emp.Name.ToUpper();
+            return $"{emp.Name.ToUpper()}{noteStr}";
         }
 
         private static DateTime GetMonday(DateTime date)

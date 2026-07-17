@@ -49,6 +49,7 @@ namespace OvertimeScheduler.Forms
         {
             DateTime start = dtpLeaveFrom.Value.Date;
             DateTime end = dtpLeaveTo.Value.Date;
+            string note = txtLeaveNote.Text.Trim();
 
             if (start > end)
             {
@@ -56,7 +57,8 @@ namespace OvertimeScheduler.Forms
                 return;
             }
 
-            _tempLeavePeriods.Add(new LeavePeriod(start, end));
+            _tempLeavePeriods.Add(new LeavePeriod(start, end, note));
+            txtLeaveNote.Clear();
             RefreshLeaveList();
         }
 

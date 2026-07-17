@@ -18,16 +18,20 @@ namespace OvertimeScheduler.Models
     {
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public string Note { get; set; }
 
-        public LeavePeriod(DateTime start, DateTime end)
+        public LeavePeriod(DateTime start, DateTime end, string note = "")
         {
             StartDate = start.Date;
             EndDate = end.Date;
+            Note = note;
         }
 
         public override string ToString()
         {
-            return $"{StartDate:dd/MM} -> {EndDate:dd/MM}";
+            return string.IsNullOrEmpty(Note) 
+                ? $"{StartDate:dd/MM} -> {EndDate:dd/MM}" 
+                : $"{StartDate:dd/MM} -> {EndDate:dd/MM} ({Note})";
         }
     }
 
@@ -57,7 +61,6 @@ namespace OvertimeScheduler.Models
             var list = new List<Employee>();
             string listPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ListNhânViên.xlsx");
             
-            // Tìm kiếm file ở thư mục cha (cho quá trình develop/debug)
             if (!File.Exists(listPath))
             {
                 listPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "ListNhânViên.xlsx");
@@ -74,7 +77,7 @@ namespace OvertimeScheduler.Models
                     using (var workbook = new XLWorkbook(listPath))
                     {
                         var worksheet = workbook.Worksheet(1);
-                        var rows = worksheet.RowsUsed().Skip(1); // Bỏ qua tiêu đề cột
+                        var rows = worksheet.RowsUsed().Skip(1);
 
                         var loadedIds = new HashSet<string>();
                         foreach (var row in rows)
@@ -84,7 +87,7 @@ namespace OvertimeScheduler.Models
                             string roleStr = row.Cell(3).GetValue<string>().Trim().ToLower();
 
                             if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(name)) continue;
-                            if (loadedIds.Contains(id)) continue; // Bỏ qua trùng lặp ID nhân viên
+                            if (loadedIds.Contains(id)) continue;
 
                             loadedIds.Add(id);
 
@@ -103,7 +106,6 @@ namespace OvertimeScheduler.Models
                             }
                             else
                             {
-                                // Tạo phân bố vai trò ngẫu nhiên dựa trên hash ID để biểu diễn giao diện đẹp hơn
                                 int hash = id.GetHashCode();
                                 if (hash % 30 == 0) role = EmployeeRole.Leader;
                                 else if (hash % 18 == 1) role = EmployeeRole.Technician;
@@ -116,13 +118,13 @@ namespace OvertimeScheduler.Models
                 }
                 catch
                 {
-                    return GetMockEmployees(); // Fallback nếu file lỗi
+                    return GetMockEmployees();
                 }
             }
 
             if (list.Count == 0)
             {
-                return GetMockEmployees(); // Fallback nếu không đọc được dòng nào
+                return GetMockEmployees();
             }
 
             return list;
@@ -134,11 +136,9 @@ namespace OvertimeScheduler.Models
             {
                 new Employee("NV01", "Nguyen Van An", EmployeeRole.Leader),
                 new Employee("NV02", "Tran Thi Binh", EmployeeRole.Leader),
-                
                 new Employee("NV03", "Le Van Cuong", EmployeeRole.Technician),
                 new Employee("NV04", "Pham Hong Dung", EmployeeRole.Technician),
                 new Employee("NV05", "Hoang Van Em", EmployeeRole.Technician),
-                
                 new Employee("NV06", "Nguyen Thi Hoa", EmployeeRole.Worker),
                 new Employee("NV07", "Tran Van Huong", EmployeeRole.Worker),
                 new Employee("NV08", "Le Thi Lan", EmployeeRole.Worker),
@@ -147,7 +147,6 @@ namespace OvertimeScheduler.Models
                 new Employee("NV11", "Do Van Oanh", EmployeeRole.Worker),
                 new Employee("NV12", "Bui Thi Phuong", EmployeeRole.Worker),
                 new Employee("NV13", "Nguyen Van Quang", EmployeeRole.Worker),
-                
                 new Employee("NV14", "Hoang Thi Son", EmployeeRole.NewWorker),
                 new Employee("NV15", "Vu Van Tuyen", EmployeeRole.NewWorker)
             };

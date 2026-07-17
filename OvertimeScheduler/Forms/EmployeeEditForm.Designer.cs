@@ -19,6 +19,8 @@ namespace OvertimeScheduler.Forms
         {
             this.lblEmpInfo = new System.Windows.Forms.Label();
             this.groupLeave = new System.Windows.Forms.GroupBox();
+            this.lblLeaveNote = new System.Windows.Forms.Label();
+            this.txtLeaveNote = new System.Windows.Forms.TextBox();
             this.btnRemoveLeave = new System.Windows.Forms.Button();
             this.btnAddLeave = new System.Windows.Forms.Button();
             this.lstLeavePeriods = new System.Windows.Forms.ListBox();
@@ -54,6 +56,8 @@ namespace OvertimeScheduler.Forms
             // 
             // groupLeave
             // 
+            this.groupLeave.Controls.Add(this.lblLeaveNote);
+            this.groupLeave.Controls.Add(this.txtLeaveNote);
             this.groupLeave.Controls.Add(this.btnRemoveLeave);
             this.groupLeave.Controls.Add(this.btnAddLeave);
             this.groupLeave.Controls.Add(this.lstLeavePeriods);
@@ -68,6 +72,24 @@ namespace OvertimeScheduler.Forms
             this.groupLeave.TabIndex = 1;
             this.groupLeave.TabStop = false;
             this.groupLeave.Text = "ĐĂNG KÝ NGHỈ PHÉP";
+            // 
+            // lblLeaveNote
+            // 
+            this.lblLeaveNote.AutoSize = true;
+            this.lblLeaveNote.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblLeaveNote.Location = new System.Drawing.Point(10, 88);
+            this.lblLeaveNote.Name = "lblLeaveNote";
+            this.lblLeaveNote.Size = new System.Drawing.Size(51, 15);
+            this.lblLeaveNote.TabIndex = 7;
+            this.lblLeaveNote.Text = "Ghi chú:";
+            // 
+            // txtLeaveNote
+            // 
+            this.txtLeaveNote.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.txtLeaveNote.Location = new System.Drawing.Point(80, 84);
+            this.txtLeaveNote.Name = "txtLeaveNote";
+            this.txtLeaveNote.Size = new System.Drawing.Size(170, 23);
+            this.txtLeaveNote.TabIndex = 8;
             // 
             // btnRemoveLeave
             // 
@@ -96,9 +118,9 @@ namespace OvertimeScheduler.Forms
             this.lstLeavePeriods.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lstLeavePeriods.FormattingEnabled = true;
             this.lstLeavePeriods.ItemHeight = 15;
-            this.lstLeavePeriods.Location = new System.Drawing.Point(10, 90);
+            this.lstLeavePeriods.Location = new System.Drawing.Point(10, 115);
             this.lstLeavePeriods.Name = "lstLeavePeriods";
-            this.lstLeavePeriods.Size = new System.Drawing.Size(240, 154);
+            this.lstLeavePeriods.Size = new System.Drawing.Size(240, 124);
             this.lstLeavePeriods.TabIndex = 4;
             // 
             // dtpLeaveTo
@@ -309,5 +331,7 @@ namespace OvertimeScheduler.Forms
         private System.Windows.Forms.Button btnRemoveOverride;
         private System.Windows.Forms.Button btnUpdate;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.Label lblLeaveNote;
+        private System.Windows.Forms.TextBox txtLeaveNote;
     }
 }

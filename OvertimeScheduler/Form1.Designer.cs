@@ -60,6 +60,7 @@ namespace OvertimeScheduler
             this.flowAdminShift = new System.Windows.Forms.FlowLayoutPanel();
             this.overtimeChart = new OvertimeScheduler.Forms.OvertimeChart();
 
+            this.panelCalendarContainer = new System.Windows.Forms.Panel();
             this.panelHolidayHeader = new System.Windows.Forms.Panel();
             this.btnPrevMonth = new System.Windows.Forms.Button();
             this.lblMonthYear = new System.Windows.Forms.Label();
@@ -91,6 +92,7 @@ namespace OvertimeScheduler
             this.groupDayShift.SuspendLayout();
             this.groupNightShift.SuspendLayout();
             this.groupAdminShift.SuspendLayout();
+            this.panelCalendarContainer.SuspendLayout();
             this.panelHolidayHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxPerShift)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMonthlyBudget)).BeginInit();
@@ -329,15 +331,14 @@ namespace OvertimeScheduler
             // 
             // tabPageHolidays
             // 
-            this.tabPageHolidays.Controls.Add(this.tblCalendar);
-            this.tabPageHolidays.Controls.Add(this.panelHolidayHeader);
+            this.tabPageHolidays.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(242)))), ((int)(((byte)(245)))));
+            this.tabPageHolidays.Controls.Add(this.panelCalendarContainer);
             this.tabPageHolidays.Location = new System.Drawing.Point(4, 24);
             this.tabPageHolidays.Name = "tabPageHolidays";
             this.tabPageHolidays.Padding = new System.Windows.Forms.Padding(5);
             this.tabPageHolidays.Size = new System.Drawing.Size(685, 557);
             this.tabPageHolidays.TabIndex = 2;
             this.tabPageHolidays.Text = "NGÀY NGHỈ CÔNG TY";
-            this.tabPageHolidays.UseVisualStyleBackColor = true;
 
             // 
             // tabPageSettings
@@ -465,6 +466,20 @@ namespace OvertimeScheduler
             this.overtimeChart.TabIndex = 0;
 
             // 
+            // panelCalendarContainer
+            // 
+            this.panelCalendarContainer.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.panelCalendarContainer.BackColor = System.Drawing.Color.White;
+            this.panelCalendarContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelCalendarContainer.Controls.Add(this.tblCalendar);
+            this.panelCalendarContainer.Controls.Add(this.panelHolidayHeader);
+            this.panelCalendarContainer.Location = new System.Drawing.Point(67, 38);
+            this.panelCalendarContainer.Name = "panelCalendarContainer";
+            this.panelCalendarContainer.Padding = new System.Windows.Forms.Padding(5);
+            this.panelCalendarContainer.Size = new System.Drawing.Size(550, 480);
+            this.panelCalendarContainer.TabIndex = 0;
+
+            // 
             // panelHolidayHeader
             // 
             this.panelHolidayHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
@@ -474,7 +489,7 @@ namespace OvertimeScheduler
             this.panelHolidayHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelHolidayHeader.Location = new System.Drawing.Point(5, 5);
             this.panelHolidayHeader.Name = "panelHolidayHeader";
-            this.panelHolidayHeader.Size = new System.Drawing.Size(675, 45);
+            this.panelHolidayHeader.Size = new System.Drawing.Size(538, 45);
             this.panelHolidayHeader.TabIndex = 0;
 
             // 
@@ -498,7 +513,7 @@ namespace OvertimeScheduler
             this.lblMonthYear.Name = "lblMonthYear";
             this.lblMonthYear.Size = new System.Drawing.Size(200, 28);
             this.lblMonthYear.TabIndex = 1;
-            this.lblMonthYear.Text = "Tháng 07 - 2026";
+            this.lblMonthYear.Text = "Tháng 12 - 2026";
             this.lblMonthYear.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 
             // 
@@ -537,7 +552,7 @@ namespace OvertimeScheduler
             this.tblCalendar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
             this.tblCalendar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
             this.tblCalendar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
-            this.tblCalendar.Size = new System.Drawing.Size(675, 502);
+            this.tblCalendar.Size = new System.Drawing.Size(538, 423);
             this.tblCalendar.TabIndex = 1;
 
             // 
@@ -697,6 +712,7 @@ namespace OvertimeScheduler
             this.groupAdminShift.ResumeLayout(false);
             this.groupNightShift.ResumeLayout(false);
             this.groupDayShift.ResumeLayout(false);
+            this.panelCalendarContainer.ResumeLayout(false);
             this.panelHolidayHeader.ResumeLayout(false);
             this.grpScheduleConfig.ResumeLayout(false);
             this.grpScheduleConfig.PerformLayout();
@@ -741,6 +757,7 @@ namespace OvertimeScheduler
         private System.Windows.Forms.FlowLayoutPanel flowAdminShift;
         private OvertimeScheduler.Forms.OvertimeChart overtimeChart;
 
+        private System.Windows.Forms.Panel panelCalendarContainer;
         private System.Windows.Forms.Panel panelHolidayHeader;
         private System.Windows.Forms.Button btnPrevMonth;
         private System.Windows.Forms.Label lblMonthYear;
