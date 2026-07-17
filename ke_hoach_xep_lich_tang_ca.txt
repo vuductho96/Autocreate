@@ -10,25 +10,30 @@ KẾ HOẠCH PHÁT TRIỂN ỨNG DỤNG XẾP LỊCH TĂNG CA TỰ ĐỘNG - PHI
 - Main Board tổ chức dưới dạng TabControl (4 Tab):
   * TAB 1: BẢNG XẾP LỊCH (Chứa 3 cột ca trực: CA NGÀY, CA ĐÊM, HÀNH CHÍNH với chiều cao tối đa cực kỳ thoáng).
   * TAB 2: BIỂU ĐỒ THỐNG KÊ (Chứa Combo Chart vẽ bằng GDI+ hiển thị toàn màn hình).
-  * TAB 3: NGÀY NGHỈ CÔNG TY (Lịch Live Calendar toàn màn hình: Click chuột trực tiếp vào ngày để BÔI ĐỎ/XÓA ĐỎ làm ngày nghỉ công ty, tự động đồng bộ thời gian thực).
+  * TAB 3: NGÀY NGHỈ CÔNG TY (Lịch Live Calendar be bé xinh xinh kích thước cố định, bôi đỏ thông minh, tương tác mượt mà không độ trễ).
   * TAB 4: CÀI ĐẶT CẤU HÌNH (Chứa toàn bộ cài đặt thuật toán xếp ca như Thứ 7 làm thường, số người/ca, Quỹ 1 tháng và cấu hình Zalo Bot).
 - Top bar siêu tinh gọn (chiều cao 45px):
   * Chỉ chứa các bộ lọc cơ bản nhất: Chọn khoảng ngày (Từ -> Đến), Ngày xếp lịch, và nút Tự động xếp lịch, Xuất Excel & Gửi Zalo, cùng trạng thái quỹ giờ.
 
-2. HỆ THỐNG LIVE CALENDAR TOÀN MÀN HÌNH (TAB 3)
-- Thay thế hoàn toàn lịch nhỏ và các ô nhập liệu/danh sách phức tạp bằng một lưới **Lịch Báo Đỏ Toàn Màn Hình** chuyên nghiệp (Full Screen).
-- Bôi đỏ trực quan: Ngày nào là ngày nghỉ công ty sẽ được bôi màu Đỏ (Red) nổi bật kèm chữ trắng. Ngày thường đi làm giữ màu Trắng (White).
-- Thao tác một chạm: Chỉ cần click chuột vào bất kỳ ô ngày nào để đảo trạng thái của ngày đó (Trắng -> Đỏ: thêm ngày nghỉ; Đỏ -> Trắng: hủy ngày nghỉ).
-- Đồng bộ tự động: Lịch tuần ở Tab 1, ComboBox ngày xếp lịch và file Excel xuất ra sẽ được cập nhật đồng thời ngay sau khi click chuột.
+2. TỐI ƯU HÓA HIỆU NĂNG GIAO DIỆN (SMOOTH TRANSITIONS)
+- Tái sử dụng control Lịch (Control Caching): Khởi tạo sẵn 42 nút ngày trên TableLayoutPanel ngay lúc load form. Khi chuyển đổi tháng, ứng dụng chỉ cập nhật dữ liệu (.Text, .Tag, màu sắc) của các nút hiện có mà không xóa đi tạo lại, giúp thời gian phản hồi chuyển tháng đạt mức dưới **10 miligiây (tức thời)**.
+- Quản lý Layout thông minh: Áp dụng cặp lệnh `SuspendLayout()` / `ResumeLayout()` bao bọc toàn bộ chu kỳ xóa/thêm thẻ nhân sự trong các cột ca trực và Sidebar Pool, ngăn chặn tính toán lại giao diện giữa chừng, triệt tiêu hoàn toàn hiện tượng giật lag và Flickering khi đổi ngày xếp lịch.
 
-3. QUY TẮC XOAY CA 2 TUẦN NGÀY, 2 TUẦN ĐÊM VÀ VỀ CA Ở CA 2
+3. HỆ THỐNG LIVE CALENDAR & GHI CHÚ NGHỈ PHÉP (TAB 3 & POPUP)
+- Định dạng lịch "be bé xinh xinh" kích thước 550x480 nằm định tâm ở giữa Tab 3.
+- Bôi đỏ trực quan: Ngày nghỉ bôi nền Đỏ (Red), click một chạm để đảo trạng thái Trắng/Đỏ trực tiếp trên lịch.
+- Ghi chú chi tiết:
+  * Trong Popup EmployeeEditForm hỗ trợ ô TextBox ghi chú lý do nghỉ (ví dụ: `7139 nghỉ phép từ 17-30/7`).
+  * Khi xuất Excel, ghi chú này tự động được trích xuất và hiển thị gọn gàng trong ngoặc đơn bên cạnh tên nhân sự (ví dụ: `NGUYEN VAN AN (7139 nghỉ phép từ 17-30/7)`).
+
+4. QUY TẮC XOAY CA 2 TUẦN NGÀY, 2 TUẦN ĐÊM VÀ VỀ CA Ở CA 2
 - Tự động hóa chia nhóm theo mã nhân viên làm 3 nhóm luân phiên xoay ca đều đặn 2 tuần một lần theo lịch tuần của năm (ISO 8601 Week):
   * Tuần xoay ca 1 (Ca Ngày): Được phép tham gia xếp tăng ca ca Ngày (Ca 1).
   * Tuần xoay ca 3 (Ca Đêm): Được phép tham gia xếp tăng ca ca Đêm (Ca 3).
   * Tuần xoay ca 2 (Về ca): Tự động chuyển về làm Ca 2 (Ca chiều 14:00~22:00) bình thường, ẩn khỏi Employee Pool để tránh xếp nhầm vào ca 1/ca 3 tăng ca, và tự động được điền tên vào cột CA 2 trong Excel xuất ra.
 - Kéo thả thông minh: Hệ thống hiển thị thông báo cảnh báo và ngăn chặn nếu người dùng cố tình kéo thả nhân viên vào sai ca trực trái quy định xoay ca tuần đó.
 
-4. XUẤT EXCEL DẠNG KHỐI TRỰC QUAN (STOCKED BLOCK LAYOUT)
+5. XUẤT EXCEL DẠNG KHỐI TRỰC QUAN (STOCKED BLOCK LAYOUT)
 - Toàn bộ chữ trong file Excel xuất ra (kể cả tiêu đề các ca trực) đều sử dụng FONT CHỮ MÀU ĐEN (Black) sắc nét để dễ in ấn và đọc bảng, không sử dụng chữ màu trắng.
 - Xuất file Excel ClosedXML gồm 1 sheet duy nhất xếp chồng các khối lịch theo trục dọc (Ngày thường, Thứ 7 tăng ca nếu có, Chủ nhật tăng ca, Ngày lễ công ty trong tuần nếu có).
 - Bố cục 4 cột ca trực:
