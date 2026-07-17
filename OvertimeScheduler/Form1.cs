@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Windows.Forms;
 using OvertimeScheduler.Models;
 using OvertimeScheduler.Services;
@@ -21,6 +22,10 @@ namespace OvertimeScheduler
         private List<CompanyHoliday> _companyHolidays;
         private DateTime _currentCalendarMonth;
         private Button[] _calendarButtons = new Button[42];
+        
+        // Đường dẫn file lưu lịch
+        private static readonly string ScheduleSaveFile = Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory, "schedule_data.json");
 
         public Form1()
         {
@@ -89,8 +94,20 @@ namespace OvertimeScheduler
             _currentCalendarMonth = new DateTime(_weekStart.Year, _weekStart.Month, 1);
             RefreshHolidaysUI();
 
+            // Load lịch đã lưu trước đó (nếu có)
+            LoadSchedule();
+
             InitDateComboBox();
-            RunAutoSchedule();
+            
+            // Chỉ chạy AutoSchedule nếu chưa có lịch được lưu
+            if (_schedule.Count == 0)
+            {
+                RunAutoSchedule();
+            }
+            else
+            {
+                RedrawActiveDay();
+            }
         }
 
         private void InitializeIrisoHolidays2026()
@@ -203,6 +220,55 @@ namespace OvertimeScheduler
             {
                 _zaloBot.StopBot();
             }
+            // Lưu lịch khi đóng app
+            SaveSchedule();
+        }
+
+        // === Lưu & Load lịch xuống file JSON ===
+        private void SaveSchedule()
+        {
+            try
+            {
+                var data = _schedule.Select(s => new
+                {
+                    Date = s.Date.ToString("yyyy-MM-dd"),
+                    s.ShiftName,
+                    s.EmployeeIds
+                }).ToList();
+                string json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(ScheduleSaveFile, json);
+            }
+            catch { /* Không crash app nếu lỗi ghi file */ }
+        }
+
+        private void LoadSchedule()
+        {
+            try
+            {
+                if (!File.Exists(ScheduleSaveFile)) return;
+                string json = File.ReadAllText(ScheduleSaveFile);
+                var raw = JsonSerializer.Deserialize<List<JsonElement>>(json);
+                if (raw == null) return;
+
+                _schedule.Clear();
+                foreach (var item in raw)
+                {
+                    if (DateTime.TryParse(item.GetProperty("Date").GetString(), out DateTime dt))
+                    {
+                        string shiftName = item.GetProperty("ShiftName").GetString() ?? "";
+                        var entry = new ScheduleEntry(dt, shiftName);
+                        var ids = item.GetProperty("EmployeeIds");
+                        foreach (var idEl in ids.EnumerateArray())
+                        {
+                            string? id = idEl.GetString();
+                            if (!string.IsNullOrEmpty(id)) entry.EmployeeIds.Add(id);
+                        }
+                        _schedule.Add(entry);
+                    }
+                }
+                Log("System", $"Đã nạp lịch đã lưu: {_schedule.Count} ca");
+            }
+            catch { /* Nếu file hỏng thì bỏ qua, tạo mới */ }
         }
 
         #region Khởi tạo & Cập nhật Dữ liệu
@@ -296,8 +362,9 @@ namespace OvertimeScheduler
             var holidayDates = _companyHolidays.Select(h => h.Date).ToList();
 
             _schedule = SchedulerEngine.AutoSchedule(_employees, start, end, _saturdayWorking, maxPerShift, holidayDates);
+            SaveSchedule();
             RedrawActiveDay();
-            Log("System", "Đã tự động xếp lịch tuần mới cho 3 ca.");
+            Log("System", "Đã tự động xếp lịch tuần mới cho 4 ca.");
         }
 
         private void RedrawActiveDay()
@@ -308,15 +375,18 @@ namespace OvertimeScheduler
             // Suspend layout để tối ưu hóa render hàng loạt control
             flowEmployeePool.SuspendLayout();
             flowDayShift.SuspendLayout();
+            flowCa2Shift.SuspendLayout();
             flowNightShift.SuspendLayout();
             flowAdminShift.SuspendLayout();
 
             flowEmployeePool.Controls.Clear();
             flowDayShift.Controls.Clear();
+            flowCa2Shift.Controls.Clear();
             flowNightShift.Controls.Clear();
             flowAdminShift.Controls.Clear();
 
-            var dayShiftIds = GetAssignedIds(activeDate, "Ngày");
+            var dayShiftIds  = GetAssignedIds(activeDate, "Ngày");
+            var ca2ShiftIds  = GetAssignedIds(activeDate, "Ca2");
             var nightShiftIds = GetAssignedIds(activeDate, "Đêm");
             var adminShiftIds = GetAssignedIds(activeDate, "Hành chính");
 
@@ -324,6 +394,12 @@ namespace OvertimeScheduler
             {
                 var emp = _employees.FirstOrDefault(e => e.Id == empId);
                 if (emp != null) flowDayShift.Controls.Add(CreateEmployeeCard(emp, "Ngày"));
+            }
+
+            foreach (var empId in ca2ShiftIds)
+            {
+                var emp = _employees.FirstOrDefault(e => e.Id == empId);
+                if (emp != null) flowCa2Shift.Controls.Add(CreateEmployeeCard(emp, "Ca2"));
             }
 
             foreach (var empId in nightShiftIds)
@@ -339,7 +415,7 @@ namespace OvertimeScheduler
             }
 
             string keyword = txtSearch.Text.Trim().ToLower();
-            var assignedAllToday = dayShiftIds.Concat(nightShiftIds).Concat(adminShiftIds).ToHashSet();
+            var assignedAllToday = dayShiftIds.Concat(ca2ShiftIds).Concat(nightShiftIds).Concat(adminShiftIds).ToHashSet();
 
             int poolCount = 0;
             foreach (var emp in _employees)
@@ -366,6 +442,7 @@ namespace OvertimeScheduler
 
             flowEmployeePool.ResumeLayout();
             flowDayShift.ResumeLayout();
+            flowCa2Shift.ResumeLayout();
             flowNightShift.ResumeLayout();
             flowAdminShift.ResumeLayout();
 
@@ -694,7 +771,8 @@ namespace OvertimeScheduler
             if (string.IsNullOrEmpty(employeeId)) return;
 
             string targetShift = "";
-            if (targetPanel == flowDayShift) targetShift = "Ngày";
+            if (targetPanel == flowDayShift)   targetShift = "Ngày";
+            else if (targetPanel == flowCa2Shift)  targetShift = "Ca2";
             else if (targetPanel == flowNightShift) targetShift = "Đêm";
             else if (targetPanel == flowAdminShift) targetShift = "Hành chính";
 
@@ -722,7 +800,8 @@ namespace OvertimeScheduler
                 }
             }
 
-            foreach (var shiftName in new[] { "Ngày", "Đêm", "Hành chính" })
+            // Xóa khỏi tất cả ca hiện tại
+            foreach (var shiftName in new[] { "Ngày", "Ca2", "Đêm", "Hành chính" })
             {
                 var entry = _schedule.FirstOrDefault(se => se.Date == keyDate && se.ShiftName == shiftName);
                 if (entry != null)
@@ -743,6 +822,7 @@ namespace OvertimeScheduler
                 targetEntry.EmployeeIds.Add(employeeId);
             }
 
+            SaveSchedule(); // Lưu ngay sau khi kéo thả
             RedrawActiveDay();
         }
         #endregion

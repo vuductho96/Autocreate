@@ -54,6 +54,8 @@ namespace OvertimeScheduler
             this.tableLayoutPanelShifts = new System.Windows.Forms.TableLayoutPanel();
             this.groupDayShift = new System.Windows.Forms.GroupBox();
             this.flowDayShift = new System.Windows.Forms.FlowLayoutPanel();
+            this.groupCa2Shift = new System.Windows.Forms.GroupBox();
+            this.flowCa2Shift = new System.Windows.Forms.FlowLayoutPanel();
             this.groupNightShift = new System.Windows.Forms.GroupBox();
             this.flowNightShift = new System.Windows.Forms.FlowLayoutPanel();
             this.groupAdminShift = new System.Windows.Forms.GroupBox();
@@ -89,6 +91,7 @@ namespace OvertimeScheduler
             this.tabPageHolidays.SuspendLayout();
             this.tabPageSettings.SuspendLayout();
             this.tableLayoutPanelShifts.SuspendLayout();
+            this.groupCa2Shift.SuspendLayout();
             this.groupDayShift.SuspendLayout();
             this.groupNightShift.SuspendLayout();
             this.groupAdminShift.SuspendLayout();
@@ -354,15 +357,17 @@ namespace OvertimeScheduler
             this.tabPageSettings.UseVisualStyleBackColor = true;
 
             // 
-            // tableLayoutPanelShifts
+            // tableLayoutPanelShifts - 4 CA
             // 
-            this.tableLayoutPanelShifts.ColumnCount = 3;
-            this.tableLayoutPanelShifts.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanelShifts.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanelShifts.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanelShifts.Controls.Add(this.groupAdminShift, 2, 0);
-            this.tableLayoutPanelShifts.Controls.Add(this.groupNightShift, 1, 0);
+            this.tableLayoutPanelShifts.ColumnCount = 4;
+            this.tableLayoutPanelShifts.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanelShifts.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanelShifts.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanelShifts.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanelShifts.Controls.Add(this.groupDayShift, 0, 0);
+            this.tableLayoutPanelShifts.Controls.Add(this.groupCa2Shift, 1, 0);
+            this.tableLayoutPanelShifts.Controls.Add(this.groupNightShift, 2, 0);
+            this.tableLayoutPanelShifts.Controls.Add(this.groupAdminShift, 3, 0);
             this.tableLayoutPanelShifts.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanelShifts.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanelShifts.Name = "tableLayoutPanelShifts";
@@ -372,89 +377,120 @@ namespace OvertimeScheduler
             this.tableLayoutPanelShifts.TabIndex = 0;
 
             // 
-            // groupAdminShift
+            // groupAdminShift - HÀNH CHÍNH (Xanh lá)
             // 
             this.groupAdminShift.Controls.Add(this.flowAdminShift);
             this.groupAdminShift.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupAdminShift.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.groupAdminShift.Location = new System.Drawing.Point(456, 3);
+            this.groupAdminShift.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.groupAdminShift.ForeColor = System.Drawing.Color.FromArgb(27, 94, 32);
+            this.groupAdminShift.Location = new System.Drawing.Point(510, 3);
             this.groupAdminShift.Name = "groupAdminShift";
-            this.groupAdminShift.Padding = new System.Windows.Forms.Padding(6);
-            this.groupAdminShift.Size = new System.Drawing.Size(220, 545);
-            this.groupAdminShift.TabIndex = 2;
+            this.groupAdminShift.Padding = new System.Windows.Forms.Padding(4, 6, 4, 4);
+            this.groupAdminShift.Size = new System.Drawing.Size(163, 545);
+            this.groupAdminShift.TabIndex = 3;
             this.groupAdminShift.TabStop = false;
-            this.groupAdminShift.Text = "HÀNH CHÍNH";
+            this.groupAdminShift.Text = "HÀNH CHÍNH  (08:00 ~ 17:00)";
 
             // 
             // flowAdminShift
             // 
             this.flowAdminShift.AllowDrop = true;
             this.flowAdminShift.AutoScroll = true;
-            this.flowAdminShift.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.flowAdminShift.BackColor = System.Drawing.Color.FromArgb(232, 245, 233);
             this.flowAdminShift.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowAdminShift.Location = new System.Drawing.Point(6, 22);
+            this.flowAdminShift.Location = new System.Drawing.Point(4, 22);
             this.flowAdminShift.Name = "flowAdminShift";
-            this.flowAdminShift.Size = new System.Drawing.Size(208, 517);
-            this.flowAdminShift.TabIndex = 1;
+            this.flowAdminShift.Size = new System.Drawing.Size(155, 519);
+            this.flowAdminShift.TabIndex = 0;
             this.flowAdminShift.DragDrop += new System.Windows.Forms.DragEventHandler(this.flowShift_DragDrop);
             this.flowAdminShift.DragEnter += new System.Windows.Forms.DragEventHandler(this.flowShift_DragEnter);
 
             // 
-            // groupNightShift
-            // 
-            this.groupNightShift.Controls.Add(this.flowNightShift);
-            this.groupNightShift.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupNightShift.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.groupNightShift.Location = new System.Drawing.Point(229, 3);
-            this.groupNightShift.Name = "groupNightShift";
-            this.groupNightShift.Padding = new System.Windows.Forms.Padding(6);
-            this.groupNightShift.Size = new System.Drawing.Size(221, 545);
-            this.groupNightShift.TabIndex = 1;
-            this.groupNightShift.TabStop = false;
-            this.groupNightShift.Text = "CA ĐÊM";
-
-            // 
-            // flowNightShift
-            // 
-            this.flowNightShift.AllowDrop = true;
-            this.flowNightShift.AutoScroll = true;
-            this.flowNightShift.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.flowNightShift.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowNightShift.Location = new System.Drawing.Point(6, 22);
-            this.flowNightShift.Name = "flowNightShift";
-            this.flowNightShift.Size = new System.Drawing.Size(209, 517);
-            this.flowNightShift.TabIndex = 1;
-            this.flowNightShift.DragDrop += new System.Windows.Forms.DragEventHandler(this.flowShift_DragDrop);
-            this.flowNightShift.DragEnter += new System.Windows.Forms.DragEventHandler(this.flowShift_DragEnter);
-
-            // 
-            // groupDayShift
+            // groupDayShift - CA 1 (Xanh dương)
             // 
             this.groupDayShift.Controls.Add(this.flowDayShift);
             this.groupDayShift.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupDayShift.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.groupDayShift.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.groupDayShift.ForeColor = System.Drawing.Color.FromArgb(13, 71, 161);
             this.groupDayShift.Location = new System.Drawing.Point(3, 3);
             this.groupDayShift.Name = "groupDayShift";
-            this.groupDayShift.Padding = new System.Windows.Forms.Padding(6);
-            this.groupDayShift.Size = new System.Drawing.Size(220, 545);
+            this.groupDayShift.Padding = new System.Windows.Forms.Padding(4, 6, 4, 4);
+            this.groupDayShift.Size = new System.Drawing.Size(163, 545);
             this.groupDayShift.TabIndex = 0;
             this.groupDayShift.TabStop = false;
-            this.groupDayShift.Text = "CA NGÀY";
+            this.groupDayShift.Text = "CA 1  (06:00 ~ 14:00)";
 
             // 
             // flowDayShift
             // 
             this.flowDayShift.AllowDrop = true;
             this.flowDayShift.AutoScroll = true;
-            this.flowDayShift.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.flowDayShift.BackColor = System.Drawing.Color.FromArgb(227, 242, 253);
             this.flowDayShift.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowDayShift.Location = new System.Drawing.Point(6, 22);
+            this.flowDayShift.Location = new System.Drawing.Point(4, 22);
             this.flowDayShift.Name = "flowDayShift";
-            this.flowDayShift.Size = new System.Drawing.Size(208, 517);
+            this.flowDayShift.Size = new System.Drawing.Size(155, 519);
             this.flowDayShift.TabIndex = 0;
             this.flowDayShift.DragDrop += new System.Windows.Forms.DragEventHandler(this.flowShift_DragDrop);
             this.flowDayShift.DragEnter += new System.Windows.Forms.DragEventHandler(this.flowShift_DragEnter);
 
+            // 
+            // groupCa2Shift - CA 2 CHIỀU (Cam nhạt)
+            // 
+            this.groupCa2Shift.Controls.Add(this.flowCa2Shift);
+            this.groupCa2Shift.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupCa2Shift.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.groupCa2Shift.ForeColor = System.Drawing.Color.FromArgb(230, 81, 0);
+            this.groupCa2Shift.Location = new System.Drawing.Point(172, 3);
+            this.groupCa2Shift.Name = "groupCa2Shift";
+            this.groupCa2Shift.Padding = new System.Windows.Forms.Padding(4, 6, 4, 4);
+            this.groupCa2Shift.Size = new System.Drawing.Size(163, 545);
+            this.groupCa2Shift.TabIndex = 1;
+            this.groupCa2Shift.TabStop = false;
+            this.groupCa2Shift.Text = "CA 2  (14:00 ~ 22:00)";
+
+            // 
+            // flowCa2Shift
+            // 
+            this.flowCa2Shift.AllowDrop = true;
+            this.flowCa2Shift.AutoScroll = true;
+            this.flowCa2Shift.BackColor = System.Drawing.Color.FromArgb(255, 243, 224);
+            this.flowCa2Shift.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowCa2Shift.Location = new System.Drawing.Point(4, 22);
+            this.flowCa2Shift.Name = "flowCa2Shift";
+            this.flowCa2Shift.Size = new System.Drawing.Size(155, 519);
+            this.flowCa2Shift.TabIndex = 0;
+            this.flowCa2Shift.DragDrop += new System.Windows.Forms.DragEventHandler(this.flowShift_DragDrop);
+            this.flowCa2Shift.DragEnter += new System.Windows.Forms.DragEventHandler(this.flowShift_DragEnter);
+
+            // 
+            // groupNightShift - CA 3 ĐÊM (Tím)
+            // 
+            this.groupNightShift.Controls.Add(this.flowNightShift);
+            this.groupNightShift.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupNightShift.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.groupNightShift.ForeColor = System.Drawing.Color.FromArgb(74, 20, 140);
+            this.groupNightShift.Location = new System.Drawing.Point(341, 3);
+            this.groupNightShift.Name = "groupNightShift";
+            this.groupNightShift.Padding = new System.Windows.Forms.Padding(4, 6, 4, 4);
+            this.groupNightShift.Size = new System.Drawing.Size(163, 545);
+            this.groupNightShift.TabIndex = 2;
+            this.groupNightShift.TabStop = false;
+            this.groupNightShift.Text = "CA 3  (22:00 ~ 06:00)";
+
+            // 
+            // flowNightShift
+            // 
+            this.flowNightShift.AllowDrop = true;
+            this.flowNightShift.AutoScroll = true;
+            this.flowNightShift.BackColor = System.Drawing.Color.FromArgb(237, 231, 246);
+            this.flowNightShift.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowNightShift.Location = new System.Drawing.Point(4, 22);
+            this.flowNightShift.Name = "flowNightShift";
+            this.flowNightShift.Size = new System.Drawing.Size(155, 519);
+            this.flowNightShift.TabIndex = 0;
+            this.flowNightShift.DragDrop += new System.Windows.Forms.DragEventHandler(this.flowShift_DragDrop);
+            this.flowNightShift.DragEnter += new System.Windows.Forms.DragEventHandler(this.flowShift_DragEnter);
             // 
             // overtimeChart
             // 
@@ -751,6 +787,8 @@ namespace OvertimeScheduler
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelShifts;
         private System.Windows.Forms.GroupBox groupDayShift;
         private System.Windows.Forms.FlowLayoutPanel flowDayShift;
+        private System.Windows.Forms.GroupBox groupCa2Shift;
+        private System.Windows.Forms.FlowLayoutPanel flowCa2Shift;
         private System.Windows.Forms.GroupBox groupNightShift;
         private System.Windows.Forms.FlowLayoutPanel flowNightShift;
         private System.Windows.Forms.GroupBox groupAdminShift;
