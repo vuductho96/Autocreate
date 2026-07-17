@@ -60,15 +60,11 @@ namespace OvertimeScheduler
             this.flowAdminShift = new System.Windows.Forms.FlowLayoutPanel();
             this.overtimeChart = new OvertimeScheduler.Forms.OvertimeChart();
 
-            this.tableLayoutPanelHolidays = new System.Windows.Forms.TableLayoutPanel();
-            this.panelHolidayLeft = new System.Windows.Forms.Panel();
-            this.mcHolidays = new System.Windows.Forms.MonthCalendar();
-            this.lblHolidayName = new System.Windows.Forms.Label();
-            this.txtHolidayName = new System.Windows.Forms.TextBox();
-            this.btnAddHoliday = new System.Windows.Forms.Button();
-            this.btnDeleteHoliday = new System.Windows.Forms.Button();
-            this.groupHolidaysList = new System.Windows.Forms.GroupBox();
-            this.lstHolidays = new System.Windows.Forms.ListBox();
+            this.panelHolidayHeader = new System.Windows.Forms.Panel();
+            this.btnPrevMonth = new System.Windows.Forms.Button();
+            this.lblMonthYear = new System.Windows.Forms.Label();
+            this.btnNextMonth = new System.Windows.Forms.Button();
+            this.tblCalendar = new System.Windows.Forms.TableLayoutPanel();
 
             this.grpScheduleConfig = new System.Windows.Forms.GroupBox();
             this.chkSaturdayWorking = new System.Windows.Forms.CheckBox();
@@ -95,9 +91,7 @@ namespace OvertimeScheduler
             this.groupDayShift.SuspendLayout();
             this.groupNightShift.SuspendLayout();
             this.groupAdminShift.SuspendLayout();
-            this.tableLayoutPanelHolidays.SuspendLayout();
-            this.panelHolidayLeft.SuspendLayout();
-            this.groupHolidaysList.SuspendLayout();
+            this.panelHolidayHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxPerShift)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMonthlyBudget)).BeginInit();
             this.grpScheduleConfig.SuspendLayout();
@@ -335,7 +329,8 @@ namespace OvertimeScheduler
             // 
             // tabPageHolidays
             // 
-            this.tabPageHolidays.Controls.Add(this.tableLayoutPanelHolidays);
+            this.tabPageHolidays.Controls.Add(this.tblCalendar);
+            this.tabPageHolidays.Controls.Add(this.panelHolidayHeader);
             this.tabPageHolidays.Location = new System.Drawing.Point(4, 24);
             this.tabPageHolidays.Name = "tabPageHolidays";
             this.tabPageHolidays.Padding = new System.Windows.Forms.Padding(5);
@@ -470,118 +465,80 @@ namespace OvertimeScheduler
             this.overtimeChart.TabIndex = 0;
 
             // 
-            // tableLayoutPanelHolidays
+            // panelHolidayHeader
             // 
-            this.tableLayoutPanelHolidays.ColumnCount = 2;
-            this.tableLayoutPanelHolidays.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 42F));
-            this.tableLayoutPanelHolidays.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 58F));
-            this.tableLayoutPanelHolidays.Controls.Add(this.panelHolidayLeft, 0, 0);
-            this.tableLayoutPanelHolidays.Controls.Add(this.groupHolidaysList, 1, 0);
-            this.tableLayoutPanelHolidays.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanelHolidays.Location = new System.Drawing.Point(5, 5);
-            this.tableLayoutPanelHolidays.Name = "tableLayoutPanelHolidays";
-            this.tableLayoutPanelHolidays.RowCount = 1;
-            this.tableLayoutPanelHolidays.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelHolidays.Size = new System.Drawing.Size(675, 547);
-            this.tableLayoutPanelHolidays.TabIndex = 0;
+            this.panelHolidayHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
+            this.panelHolidayHeader.Controls.Add(this.btnPrevMonth);
+            this.panelHolidayHeader.Controls.Add(this.lblMonthYear);
+            this.panelHolidayHeader.Controls.Add(this.btnNextMonth);
+            this.panelHolidayHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelHolidayHeader.Location = new System.Drawing.Point(5, 5);
+            this.panelHolidayHeader.Name = "panelHolidayHeader";
+            this.panelHolidayHeader.Size = new System.Drawing.Size(675, 45);
+            this.panelHolidayHeader.TabIndex = 0;
 
             // 
-            // panelHolidayLeft
+            // btnPrevMonth
             // 
-            this.panelHolidayLeft.Controls.Add(this.mcHolidays);
-            this.panelHolidayLeft.Controls.Add(this.lblHolidayName);
-            this.panelHolidayLeft.Controls.Add(this.txtHolidayName);
-            this.panelHolidayLeft.Controls.Add(this.btnAddHoliday);
-            this.panelHolidayLeft.Controls.Add(this.btnDeleteHoliday);
-            this.panelHolidayLeft.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelHolidayLeft.Location = new System.Drawing.Point(3, 3);
-            this.panelHolidayLeft.Name = "panelHolidayLeft";
-            this.panelHolidayLeft.Size = new System.Drawing.Size(277, 541);
-            this.panelHolidayLeft.TabIndex = 0;
+            this.btnPrevMonth.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPrevMonth.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnPrevMonth.Location = new System.Drawing.Point(10, 8);
+            this.btnPrevMonth.Name = "btnPrevMonth";
+            this.btnPrevMonth.Size = new System.Drawing.Size(40, 28);
+            this.btnPrevMonth.TabIndex = 0;
+            this.btnPrevMonth.Text = "<";
+            this.btnPrevMonth.UseVisualStyleBackColor = true;
+            this.btnPrevMonth.Click += new System.EventHandler(this.btnPrevMonth_Click);
 
             // 
-            // mcHolidays
+            // lblMonthYear
             // 
-            this.mcHolidays.Location = new System.Drawing.Point(10, 10);
-            this.mcHolidays.MaxSelectionCount = 1;
-            this.mcHolidays.Name = "mcHolidays";
-            this.mcHolidays.TabIndex = 0;
+            this.lblMonthYear.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lblMonthYear.Location = new System.Drawing.Point(56, 8);
+            this.lblMonthYear.Name = "lblMonthYear";
+            this.lblMonthYear.Size = new System.Drawing.Size(200, 28);
+            this.lblMonthYear.TabIndex = 1;
+            this.lblMonthYear.Text = "Tháng 07 - 2026";
+            this.lblMonthYear.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 
             // 
-            // lblHolidayName
+            // btnNextMonth
             // 
-            this.lblHolidayName.AutoSize = true;
-            this.lblHolidayName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblHolidayName.Location = new System.Drawing.Point(10, 185);
-            this.lblHolidayName.Name = "lblHolidayName";
-            this.lblHolidayName.Size = new System.Drawing.Size(107, 15);
-            this.lblHolidayName.TabIndex = 1;
-            this.lblHolidayName.Text = "Tên ngày nghỉ/lễ:";
+            this.btnNextMonth.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnNextMonth.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnNextMonth.Location = new System.Drawing.Point(262, 8);
+            this.btnNextMonth.Name = "btnNextMonth";
+            this.btnNextMonth.Size = new System.Drawing.Size(40, 28);
+            this.btnNextMonth.TabIndex = 2;
+            this.btnNextMonth.Text = ">";
+            this.btnNextMonth.UseVisualStyleBackColor = true;
+            this.btnNextMonth.Click += new System.EventHandler(this.btnNextMonth_Click);
 
             // 
-            // txtHolidayName
+            // tblCalendar
             // 
-            this.txtHolidayName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.txtHolidayName.Location = new System.Drawing.Point(10, 205);
-            this.txtHolidayName.Name = "txtHolidayName";
-            this.txtHolidayName.Size = new System.Drawing.Size(227, 23);
-            this.txtHolidayName.TabIndex = 2;
-
-            // 
-            // btnAddHoliday
-            // 
-            this.btnAddHoliday.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(125)))), ((int)(((byte)(50)))));
-            this.btnAddHoliday.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAddHoliday.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnAddHoliday.ForeColor = System.Drawing.Color.White;
-            this.btnAddHoliday.Location = new System.Drawing.Point(10, 240);
-            this.btnAddHoliday.Name = "btnAddHoliday";
-            this.btnAddHoliday.Size = new System.Drawing.Size(108, 25);
-            this.btnAddHoliday.TabIndex = 3;
-            this.btnAddHoliday.Text = "Thêm Ngày Nghỉ";
-            this.btnAddHoliday.UseVisualStyleBackColor = false;
-            this.btnAddHoliday.Click += new System.EventHandler(this.btnAddHoliday_Click);
-
-            // 
-            // btnDeleteHoliday
-            // 
-            this.btnDeleteHoliday.BackColor = System.Drawing.Color.DarkRed;
-            this.btnDeleteHoliday.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDeleteHoliday.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnDeleteHoliday.ForeColor = System.Drawing.Color.White;
-            this.btnDeleteHoliday.Location = new System.Drawing.Point(129, 240);
-            this.btnDeleteHoliday.Name = "btnDeleteHoliday";
-            this.btnDeleteHoliday.Size = new System.Drawing.Size(108, 25);
-            this.btnDeleteHoliday.TabIndex = 4;
-            this.btnDeleteHoliday.Text = "Xóa Ngày Nghỉ";
-            this.btnDeleteHoliday.UseVisualStyleBackColor = false;
-            this.btnDeleteHoliday.Click += new System.EventHandler(this.btnDeleteHoliday_Click);
-
-            // 
-            // groupHolidaysList
-            // 
-            this.groupHolidaysList.Controls.Add(this.lstHolidays);
-            this.groupHolidaysList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupHolidaysList.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.groupHolidaysList.Location = new System.Drawing.Point(286, 3);
-            this.groupHolidaysList.Name = "groupHolidaysList";
-            this.groupHolidaysList.Padding = new System.Windows.Forms.Padding(8);
-            this.groupHolidaysList.Size = new System.Drawing.Size(386, 541);
-            this.groupHolidaysList.TabIndex = 1;
-            this.groupHolidaysList.TabStop = false;
-            this.groupHolidaysList.Text = "DANH SÁCH CÁC NGÀY NGHỈ";
-
-            // 
-            // lstHolidays
-            // 
-            this.lstHolidays.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstHolidays.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lstHolidays.FormattingEnabled = true;
-            this.lstHolidays.ItemHeight = 17;
-            this.lstHolidays.Location = new System.Drawing.Point(8, 24);
-            this.lstHolidays.Name = "lstHolidays";
-            this.lstHolidays.Size = new System.Drawing.Size(370, 509);
-            this.lstHolidays.TabIndex = 0;
+            this.tblCalendar.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
+            this.tblCalendar.ColumnCount = 7;
+            this.tblCalendar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
+            this.tblCalendar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
+            this.tblCalendar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
+            this.tblCalendar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
+            this.tblCalendar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
+            this.tblCalendar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
+            this.tblCalendar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
+            this.tblCalendar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tblCalendar.Location = new System.Drawing.Point(5, 50);
+            this.tblCalendar.Name = "tblCalendar";
+            this.tblCalendar.RowCount = 7;
+            this.tblCalendar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tblCalendar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tblCalendar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tblCalendar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tblCalendar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tblCalendar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tblCalendar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tblCalendar.Size = new System.Drawing.Size(675, 502);
+            this.tblCalendar.TabIndex = 1;
 
             // 
             // grpScheduleConfig
@@ -740,10 +697,7 @@ namespace OvertimeScheduler
             this.groupAdminShift.ResumeLayout(false);
             this.groupNightShift.ResumeLayout(false);
             this.groupDayShift.ResumeLayout(false);
-            this.tableLayoutPanelHolidays.ResumeLayout(false);
-            this.panelHolidayLeft.ResumeLayout(false);
-            this.panelHolidayLeft.PerformLayout();
-            this.groupHolidaysList.ResumeLayout(false);
+            this.panelHolidayHeader.ResumeLayout(false);
             this.grpScheduleConfig.ResumeLayout(false);
             this.grpScheduleConfig.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxPerShift)).EndInit();
@@ -787,15 +741,11 @@ namespace OvertimeScheduler
         private System.Windows.Forms.FlowLayoutPanel flowAdminShift;
         private OvertimeScheduler.Forms.OvertimeChart overtimeChart;
 
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelHolidays;
-        private System.Windows.Forms.Panel panelHolidayLeft;
-        private System.Windows.Forms.MonthCalendar mcHolidays;
-        private System.Windows.Forms.Label lblHolidayName;
-        private System.Windows.Forms.TextBox txtHolidayName;
-        private System.Windows.Forms.Button btnAddHoliday;
-        private System.Windows.Forms.Button btnDeleteHoliday;
-        private System.Windows.Forms.GroupBox groupHolidaysList;
-        private System.Windows.Forms.ListBox lstHolidays;
+        private System.Windows.Forms.Panel panelHolidayHeader;
+        private System.Windows.Forms.Button btnPrevMonth;
+        private System.Windows.Forms.Label lblMonthYear;
+        private System.Windows.Forms.Button btnNextMonth;
+        private System.Windows.Forms.TableLayoutPanel tblCalendar;
 
         private System.Windows.Forms.GroupBox grpScheduleConfig;
         private System.Windows.Forms.CheckBox chkSaturdayWorking;
