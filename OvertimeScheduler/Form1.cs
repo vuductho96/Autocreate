@@ -364,6 +364,7 @@ namespace OvertimeScheduler
             _schedule = SchedulerEngine.AutoSchedule(_employees, start, end, _saturdayWorking, maxPerShift, holidayDates);
             SaveSchedule();
             RedrawActiveDay();
+            RefreshHolidaysUI(); // Cập nhật lịch ngày nghỉ để hiện mã NV nghỉ phép
             Log("System", "Đã tự động xếp lịch tuần mới cho 4 ca.");
         }
 
@@ -931,29 +932,48 @@ namespace OvertimeScheduler
             {
                 DateTime cellDate = firstDay.AddDays(i - startOffset);
                 var btn = _calendarButtons[i];
-                btn.Text = cellDate.Day.ToString();
                 btn.Tag = cellDate.Date;
 
-                // Màu chữ tùy thuộc vào ngày thuộc tháng hiện tại hay không
-                if (cellDate.Month != _currentCalendarMonth.Month)
+                // Tìm nhân viên nghỉ phép ngày này
+                var onLeaveIds = _employees
+                    .Where(emp => emp.LeavePeriods.Any(lp => cellDate.Date >= lp.StartDate && cellDate.Date <= lp.EndDate))
+                    .Select(emp => emp.Id)
+                    .ToList();
+
+                // Kiểm tra ngày nghỉ công ty
+                bool isHoliday = _companyHolidays.Any(h => h.Date == cellDate.Date);
+
+                // Dựng text cho ô lịch: số ngày + mã nhân viên nghỉ (nếu có)
+                if (onLeaveIds.Count > 0)
                 {
-                    btn.ForeColor = Color.DarkGray;
+                    string ids = string.Join(",", onLeaveIds);
+                    btn.Text = $"{cellDate.Day}\n{ids}";
+                    btn.Font = new Font("Segoe UI", 7.5F, FontStyle.Regular);
                 }
                 else
                 {
-                    btn.ForeColor = Color.Black;
+                    btn.Text = cellDate.Day.ToString();
+                    btn.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
                 }
 
-                // Kiểm tra xem ngày này có nằm trong danh sách ngày nghỉ không
-                bool isHoliday = _companyHolidays.Any(h => h.Date == cellDate.Date);
+                // Màu sắc ưu tiên: đỏ (nghỉ công ty) > vàng (có NV nghỉ phép) > trắng
                 if (isHoliday)
                 {
-                    btn.BackColor = Color.FromArgb(239, 83, 80); // Đỏ màu hồng sang trọng
+                    btn.BackColor = Color.FromArgb(239, 83, 80);
                     btn.ForeColor = Color.White;
+                }
+                else if (onLeaveIds.Count > 0)
+                {
+                    btn.BackColor = Color.FromArgb(255, 249, 196); // Vàng nhạt
+                    btn.ForeColor = cellDate.Month != _currentCalendarMonth.Month
+                        ? Color.FromArgb(180, 140, 0)
+                        : Color.FromArgb(130, 80, 0);  // Nâu vàng
                 }
                 else
                 {
                     btn.BackColor = Color.White;
+                    btn.ForeColor = cellDate.Month != _currentCalendarMonth.Month
+                        ? Color.DarkGray : Color.Black;
                 }
             }
             tblCalendar.ResumeLayout();
