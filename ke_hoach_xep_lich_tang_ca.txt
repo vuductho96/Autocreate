@@ -15,19 +15,19 @@ KẾ HOẠCH PHÁT TRIỂN ỨNG DỤNG XẾP LỊCH TĂNG CA TỰ ĐỘNG - PHI
 - Top bar siêu tinh gọn (chiều cao 45px):
   * Chỉ chứa các bộ lọc cơ bản nhất: Chọn khoảng ngày (Từ -> Đến), Ngày xếp lịch, và nút Tự động xếp lịch, Xuất Excel & Gửi Zalo, cùng trạng thái quỹ giờ.
 
-2. NHẬP LIỆU & CHỈNH SỬA CHI TIẾT NHÂN VIÊN
-- Tải danh sách tự động: Nạp hơn 1500 nhân sự trực tiếp từ file Excel "ListNhânViên.xlsx" khi ứng dụng chạy.
-- Cấu hình số người/ca: Ô chọn số "Người/ca" (mặc định = 2, từ 1 đến 10) để điều chỉnh số lượng nhân viên tự động xếp tối đa cho ca Ngày và ca Đêm.
-- Thứ 7 làm thường không tính tăng ca: Khi tích chọn checkbox "Thứ 7 làm thường", hệ thống bỏ qua không tính toán ca trực hay xuất cột Thứ Bảy vào bảng tăng ca (chỉ chạy lịch thường Thứ 2 - Thứ 6 và tăng ca Chủ Nhật).
-- Đăng ký nghỉ phép theo khoảng ngày (Leave Periods: Từ ngày -> Đến ngày).
-- Gán giờ làm thêm cố định vào ngày cụ thể (Overtime Override: Ví dụ ngày 17/07 làm 12 tiếng cố định).
-- Bấm Cập Nhật tự động tính toán lại toàn bộ lịch tuần và cập nhật giao diện, biểu đồ, quỹ giờ.
+2. QUY TẮC XOAY CA 2 TUẦN NGÀY, 2 TUẦN ĐÊM VÀ VỀ CA Ở CA 2
+- Tự động hóa chia nhóm theo mã nhân viên làm 3 nhóm luân phiên xoay ca đều đặn 2 tuần một lần theo lịch tuần của năm (ISO 8601 Week):
+  * Tuần xoay ca 1 (Ca Ngày): Được phép tham gia xếp tăng ca ca Ngày (Ca 1).
+  * Tuần xoay ca 3 (Ca Đêm): Được phép tham gia xếp tăng ca ca Đêm (Ca 3).
+  * Tuần xoay ca 2 (Về ca): Tự động chuyển về làm Ca 2 (Ca chiều 14:00~22:00) bình thường, ẩn khỏi Employee Pool để tránh xếp nhầm vào ca 1/ca 3 tăng ca, và tự động được điền tên vào cột CA 2 trong Excel xuất ra.
+- Kéo thả thông minh: Hệ thống hiển thị thông báo cảnh báo và ngăn chặn nếu người dùng cố tình kéo thả nhân viên vào sai ca trực trái quy định xoay ca tuần đó.
 
 3. XUẤT EXCEL DẠNG KHỐI TRỰC QUAN (STOCKED BLOCK LAYOUT)
+- Toàn bộ chữ trong file Excel xuất ra (kể cả tiêu đề các ca trực) đều sử dụng FONT CHỮ MÀU ĐEN (Black) sắc nét để dễ in ấn và đọc bảng, không sử dụng chữ màu trắng.
 - Xuất file Excel ClosedXML gồm 1 sheet duy nhất xếp chồng các khối lịch theo trục dọc (Ngày thường, Thứ 7 tăng ca nếu có, Chủ nhật tăng ca, Ngày lễ công ty trong tuần nếu có).
 - Bố cục 4 cột ca trực:
   * CA 1 (6:00~14:00) - Cột A-B (Mã NV, Họ tên IN HOA). Nền xanh dương.
-  * CA 2 (14:00~22:00) - Cột C-D (Để trống dữ liệu). Nền xám nhạt.
+  * CA 2 (14:00~22:00) - Cột C-D (Mã NV, Họ tên xoay ca về Ca 2). Nền xám nhạt.
   * CA 3 (22:00~6:00) - Cột E-F (Mã NV, Họ tên IN HOA). Nền cam.
   * HÀNH CHÍNH - Cột G-H (Mã NV, Họ tên IN HOA). Nền xanh lá.
 - Kẻ ô viền mỏng (Thin Border) cho toàn bộ bảng. Hiển thị giờ làm thêm cố định nối đuôi tên nhân viên (ví dụ: NGUYEN CHANH TIN 12h).
