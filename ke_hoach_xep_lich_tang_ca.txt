@@ -1,0 +1,34 @@
+======================================================================
+KẾ HOẠCH PHÁT TRIỂN ỨNG DỤNG XẾP LỊCH TĂNG CA TỰ ĐỘNG - PHIÊN BẢN ĐẦY ĐỦ
+======================================================================
+
+1. CÔNG NGHỆ & THIẾT KẾ GIAO DIỆN
+- Nền tảng: C# WinForms (.NET 8).
+- Sidebar: Tìm kiếm + Thẻ nhân viên (Tô màu theo vai trò: Leader xanh biển, Kỹ thuật đen, Công nhân mới đỏ, Công nhân trắng).
+  * Double-click thẻ nhân sự mở cửa sổ popup EmployeeEditForm chỉnh sửa chi tiết.
+  * Tối ưu hóa UI (Virtualization): Chỉ kết xuất tối đa 50 nhân sự đầu tiên khớp bộ lọc để đảm bảo ứng dụng luôn mượt mà.
+- Main Board tổ chức dưới dạng TabControl (3 Tab):
+  * TAB 1: BẢNG XẾP LỊCH (Chứa 3 cột ca trực: CA NGÀY, CA ĐÊM, HÀNH CHÍNH với chiều cao tối đa cực kỳ thoáng).
+  * TAB 2: BIỂU ĐỒ THỐNG KÊ (Chứa Combo Chart vẽ bằng GDI+ hiển thị toàn màn hình).
+  * TAB 3: NGÀY NGHỈ CÔNG TY (Live Calendar chứa lịch MonthCalendar chọn ngày, ô điền tên lễ, nút thêm/xóa lễ và danh sách ngày nghỉ đã thêm để xếp lịch động).
+- Top bar tinh gọn (chiều cao 68px):
+  * Dòng 1: Chọn khoảng ngày (From -> To), checkbox Thứ 7, nhập số người/ca, Quỹ 1 tháng, Ngày xếp, và Trạng thái quỹ giờ (Đã xếp / Còn lại).
+  * Dòng 2: Nút tự động xếp lịch, Xuất Excel & Gửi Zalo, nhập tên nhóm Zalo, nút Bật/Tắt Bot.
+
+2. NHẬP LIỆU & CHỈNH SỬA CHI TIẾT NHÂN VIÊN
+- Tải danh sách tự động: Nạp hơn 1500 nhân sự trực tiếp từ file Excel "ListNhânViên.xlsx" khi ứng dụng chạy.
+- Cấu hình số người/ca: Ô chọn số "Người/ca" (mặc định = 2, từ 1 đến 10) để điều chỉnh số lượng nhân viên tự động xếp tối đa cho ca Ngày và ca Đêm.
+- Thứ 7 làm thường không tính tăng ca: Khi tích chọn checkbox "Thứ 7 làm thường", hệ thống bỏ qua không tính toán ca trực hay xuất cột Thứ Bảy vào bảng tăng ca (chỉ chạy lịch thường Thứ 2 - Thứ 6 và tăng ca Chủ Nhật).
+- Đăng ký nghỉ phép theo khoảng ngày (Leave Periods: Từ ngày -> Đến ngày).
+- Gán giờ làm thêm cố định vào ngày cụ thể (Overtime Override: Ví dụ ngày 17/07 làm 12 tiếng cố định).
+- Bấm Cập Nhật tự động tính toán lại toàn bộ lịch tuần và cập nhật giao diện, biểu đồ, quỹ giờ.
+
+3. XUẤT EXCEL DẠNG KHỐI TRỰC QUAN (STOCKED BLOCK LAYOUT)
+- Xuất file Excel ClosedXML gồm 1 sheet duy nhất xếp chồng các khối lịch theo trục dọc (Ngày thường, Thứ 7 tăng ca nếu có, Chủ nhật tăng ca, Ngày lễ công ty trong tuần nếu có).
+- Bố cục 4 cột ca trực:
+  * CA 1 (6:00~14:00) - Cột A-B (Mã NV, Họ tên IN HOA). Nền xanh dương.
+  * CA 2 (14:00~22:00) - Cột C-D (Để trống dữ liệu). Nền xám nhạt.
+  * CA 3 (22:00~6:00) - Cột E-F (Mã NV, Họ tên IN HOA). Nền cam.
+  * HÀNH CHÍNH - Cột G-H (Mã NV, Họ tên IN HOA). Nền xanh lá.
+- Kẻ ô viền mỏng (Thin Border) cho toàn bộ bảng. Hiển thị giờ làm thêm cố định nối đuôi tên nhân viên (ví dụ: NGUYEN CHANH TIN 12h).
+- Zalo Bot chạy Selenium ngầm, tự động kết nối Zalo Web, lắng nghe lệnh nghỉ phép tiếng Việt để tự xếp lại lịch, xuất file Excel mới và gửi phản hồi vào nhóm chat.

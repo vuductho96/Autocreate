@@ -1,0 +1,18 @@
+# Build folders
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Output Excel files
+Outputs/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local settings
+.gemini/
