@@ -7,13 +7,13 @@ KẾ HOẠCH PHÁT TRIỂN ỨNG DỤNG XẾP LỊCH TĂNG CA TỰ ĐỘNG - PHI
 - Sidebar: Tìm kiếm + Thẻ nhân viên (Tô màu theo vai trò: Leader xanh biển, Kỹ thuật đen, Công nhân mới đỏ, Công nhân trắng).
   * Double-click thẻ nhân sự mở cửa sổ popup EmployeeEditForm chỉnh sửa chi tiết.
   * Tối ưu hóa UI (Virtualization): Chỉ kết xuất tối đa 50 nhân sự đầu tiên khớp bộ lọc để đảm bảo ứng dụng luôn mượt mà.
-- Main Board tổ chức dưới dạng TabControl (3 Tab):
+- Main Board tổ chức dưới dạng TabControl (4 Tab):
   * TAB 1: BẢNG XẾP LỊCH (Chứa 3 cột ca trực: CA NGÀY, CA ĐÊM, HÀNH CHÍNH với chiều cao tối đa cực kỳ thoáng).
   * TAB 2: BIỂU ĐỒ THỐNG KÊ (Chứa Combo Chart vẽ bằng GDI+ hiển thị toàn màn hình).
   * TAB 3: NGÀY NGHỈ CÔNG TY (Live Calendar chứa lịch MonthCalendar chọn ngày, ô điền tên lễ, nút thêm/xóa lễ và danh sách ngày nghỉ đã thêm để xếp lịch động).
-- Top bar tinh gọn (chiều cao 68px):
-  * Dòng 1: Chọn khoảng ngày (From -> To), checkbox Thứ 7, nhập số người/ca, Quỹ 1 tháng, Ngày xếp, và Trạng thái quỹ giờ (Đã xếp / Còn lại).
-  * Dòng 2: Nút tự động xếp lịch, Xuất Excel & Gửi Zalo, nhập tên nhóm Zalo, nút Bật/Tắt Bot.
+  * TAB 4: CÀI ĐẶT CẤU HÌNH (Chứa toàn bộ cài đặt thuật toán xếp ca như Thứ 7 làm thường, số người/ca, Quỹ 1 tháng và cấu hình kết nối Zalo Bot).
+- Top bar siêu tinh gọn (chiều cao 45px):
+  * Chỉ chứa các bộ lọc cơ bản nhất: Chọn khoảng ngày (Từ -> Đến), Ngày xếp lịch, và nút Tự động xếp lịch, Xuất Excel & Gửi Zalo, cùng trạng thái quỹ giờ.
 
 2. NHẬP LIỆU & CHỈNH SỬA CHI TIẾT NHÂN VIÊN
 - Tải danh sách tự động: Nạp hơn 1500 nhân sự trực tiếp từ file Excel "ListNhânViên.xlsx" khi ứng dụng chạy.
