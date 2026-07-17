@@ -417,6 +417,21 @@ namespace OvertimeScheduler
             string keyword = txtSearch.Text.Trim().ToLower();
             var assignedAllToday = dayShiftIds.Concat(ca2ShiftIds).Concat(nightShiftIds).Concat(adminShiftIds).ToHashSet();
 
+            // Hiển thị nhân viên nghỉ phép với card vàng + note
+            foreach (var emp in _employees)
+            {
+                if (assignedAllToday.Contains(emp.Id)) continue;
+                var leaveToday = emp.LeavePeriods.FirstOrDefault(lp => activeDate >= lp.StartDate && activeDate <= lp.EndDate);
+                if (leaveToday == null) continue;
+
+                bool matchesSearch = string.IsNullOrEmpty(keyword) ||
+                                    emp.Name.ToLower().Contains(keyword) ||
+                                    emp.Id.ToLower().Contains(keyword);
+                if (!matchesSearch) continue;
+
+                flowEmployeePool.Controls.Add(CreateEmployeeCard(emp, "Pool", leaveToday));
+            }
+
             int poolCount = 0;
             foreach (var emp in _employees)
             {
@@ -434,7 +449,7 @@ namespace OvertimeScheduler
                         if (rot == 2) continue; // Ca 2 không đi làm thêm/overtime
                     }
 
-                    flowEmployeePool.Controls.Add(CreateEmployeeCard(emp, "Pool"));
+                    flowEmployeePool.Controls.Add(CreateEmployeeCard(emp, "Pool", null));
                     poolCount++;
                     if (poolCount >= 50) break;
                 }
@@ -519,103 +534,128 @@ namespace OvertimeScheduler
             overtimeChart.UpdateData(_employees, _schedule, start, end);
         }
 
-        private Panel CreateEmployeeCard(Employee emp, string location)
+        private Panel CreateEmployeeCard(Employee emp, string location, LeavePeriod? leave = null)
         {
+            bool isOnLeave = leave != null;
+
             var cardPanel = new Panel
             {
-                Size = new Size(245, 55),
+                Size = new Size(245, isOnLeave ? 68 : 55),
                 BorderStyle = BorderStyle.FixedSingle,
                 Margin = new Padding(3, 3, 3, 5),
                 Tag = emp.Id
             };
 
-            switch (emp.Role)
+            if (isOnLeave)
             {
-                case EmployeeRole.Leader:
-                    cardPanel.BackColor = Color.LightSkyBlue;
-                    break;
-                case EmployeeRole.Technician:
-                    cardPanel.BackColor = Color.FromArgb(40, 40, 40);
-                    break;
-                case EmployeeRole.NewWorker:
-                    cardPanel.BackColor = Color.FromArgb(230, 70, 70);
-                    break;
-                case EmployeeRole.Worker:
-                default:
-                    cardPanel.BackColor = Color.White;
-                    break;
+                // Card vàng cam đặc trưng cho nghỉ phép
+                cardPanel.BackColor = Color.FromArgb(255, 243, 205);
+            }
+            else
+            {
+                switch (emp.Role)
+                {
+                    case EmployeeRole.Leader:
+                        cardPanel.BackColor = Color.LightSkyBlue;
+                        break;
+                    case EmployeeRole.Technician:
+                        cardPanel.BackColor = Color.FromArgb(40, 40, 40);
+                        break;
+                    case EmployeeRole.NewWorker:
+                        cardPanel.BackColor = Color.FromArgb(230, 70, 70);
+                        break;
+                    case EmployeeRole.Worker:
+                    default:
+                        cardPanel.BackColor = Color.White;
+                        break;
+                }
             }
 
-            Color textColor = (emp.Role == EmployeeRole.Technician || emp.Role == EmployeeRole.NewWorker) ? Color.White : Color.Black;
+            Color textColor = isOnLeave ? Color.FromArgb(130, 80, 0)
+                : (emp.Role == EmployeeRole.Technician || emp.Role == EmployeeRole.NewWorker)
+                    ? Color.White : Color.Black;
 
             var lblName = new Label
             {
                 Text = $"{emp.Id} - {emp.Name}",
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 ForeColor = textColor,
-                Location = new Point(5, 8),
+                Location = new Point(5, 5),
                 AutoSize = true
             };
             cardPanel.Controls.Add(lblName);
 
             var lblRole = new Label
             {
-                Text = GetRoleNameVietnamese(emp.Role),
-                Font = new Font("Segoe UI", 8F, FontStyle.Italic),
-                ForeColor = textColor,
-                Location = new Point(5, 28),
+                Text = isOnLeave ? "🏖 NGHỈ PHÉP" : GetRoleNameVietnamese(emp.Role),
+                Font = new Font("Segoe UI", 8F, isOnLeave ? FontStyle.Bold : FontStyle.Italic),
+                ForeColor = isOnLeave ? Color.FromArgb(200, 100, 0) : textColor,
+                Location = new Point(5, 24),
                 AutoSize = true
             };
             cardPanel.Controls.Add(lblRole);
 
-            var btnDelete = new Button
+            // Dòng note lý do nghỉ phép
+            if (isOnLeave && !string.IsNullOrEmpty(leave!.Note))
             {
-                Text = "X",
-                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
-                Size = new Size(24, 20),
-                Location = new Point(215, 8),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.Transparent,
-                ForeColor = textColor
-            };
-            btnDelete.FlatAppearance.BorderSize = 0;
-            
-            if (location == "Pool")
-            {
-                btnDelete.Text = "X";
-                btnDelete.Click += (s, ev) =>
+                var lblNote = new Label
                 {
-                    DateTime activeDate = ((DateItem)cbActiveDay.SelectedItem).Date;
-                    emp.LeavePeriods.Add(new LeavePeriod(activeDate, activeDate, "Báo nghỉ nhanh"));
-                    Log("System", $"Nhân viên {emp.Name} báo nghỉ vào ngày {activeDate:dd/MM/yyyy}.");
-                    
-                    RunAutoSchedule();
+                    Text = $"📋 {leave.Note}",
+                    Font = new Font("Segoe UI", 7.5F, FontStyle.Regular),
+                    ForeColor = Color.FromArgb(100, 60, 0),
+                    Location = new Point(5, 43),
+                    AutoSize = false,
+                    Size = new Size(200, 18),
+                    Padding = new Padding(0)
                 };
+                cardPanel.Controls.Add(lblNote);
             }
-            else
-            {
-                btnDelete.Text = "x";
-                btnDelete.Click += (s, ev) =>
-                {
-                    DateTime activeDate = ((DateItem)cbActiveDay.SelectedItem).Date;
-                    DateTime keyDate = GetScheduleKey(activeDate);
-                    var entry = _schedule.FirstOrDefault(se => se.Date == keyDate && se.ShiftName == location);
-                    if (entry != null)
-                    {
-                        entry.EmployeeIds.Remove(emp.Id);
-                    }
-                    RedrawActiveDay();
-                };
-            }
-            cardPanel.Controls.Add(btnDelete);
 
-            cardPanel.MouseDown += (s, ev) =>
+            if (!isOnLeave)
             {
-                if (ev.Button == MouseButtons.Left)
+                // Nút X chỉ có khi không phải nghỉ phép
+                var btnDelete = new Button
                 {
-                    cardPanel.DoDragDrop(cardPanel, DragDropEffects.Move);
+                    Text = location == "Pool" ? "X" : "x",
+                    Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                    Size = new Size(24, 20),
+                    Location = new Point(215, 5),
+                    FlatStyle = FlatStyle.Flat,
+                    BackColor = Color.Transparent,
+                    ForeColor = textColor
+                };
+                btnDelete.FlatAppearance.BorderSize = 0;
+
+                if (location == "Pool")
+                {
+                    btnDelete.Click += (s, ev) =>
+                    {
+                        DateTime activeDate = ((DateItem)cbActiveDay.SelectedItem).Date;
+                        emp.LeavePeriods.Add(new LeavePeriod(activeDate, activeDate, "Báo nghỉ nhanh"));
+                        Log("System", $"Nhân viên {emp.Name} báo nghỉ vào ngày {activeDate:dd/MM/yyyy}.");
+                        RunAutoSchedule();
+                    };
                 }
-            };
+                else
+                {
+                    btnDelete.Click += (s, ev) =>
+                    {
+                        DateTime activeDate = ((DateItem)cbActiveDay.SelectedItem).Date;
+                        DateTime keyDate = GetScheduleKey(activeDate);
+                        var entry = _schedule.FirstOrDefault(se => se.Date == keyDate && se.ShiftName == location);
+                        if (entry != null) entry.EmployeeIds.Remove(emp.Id);
+                        SaveSchedule();
+                        RedrawActiveDay();
+                    };
+                }
+                cardPanel.Controls.Add(btnDelete);
+
+                cardPanel.MouseDown += (s, ev) =>
+                {
+                    if (ev.Button == MouseButtons.Left)
+                        cardPanel.DoDragDrop(cardPanel, DragDropEffects.Move);
+                };
+            }
 
             cardPanel.DoubleClick += CardPanel_DoubleClick;
             lblName.DoubleClick += (s, ev) => CardPanel_DoubleClick(cardPanel, ev);
@@ -875,25 +915,8 @@ namespace OvertimeScheduler
 
         private void CalendarButton_Click(object sender, EventArgs e)
         {
-            var btn = (Button)sender;
-            if (btn.Tag is DateTime clickedDate)
-            {
-                var existing = _companyHolidays.FirstOrDefault(h => h.Date == clickedDate);
-                if (existing != null)
-                {
-                    _companyHolidays.Remove(existing);
-                }
-                else
-                {
-                    string name = clickedDate.DayOfWeek == DayOfWeek.Sunday ? "Chủ Nhật" : 
-                                  (clickedDate.DayOfWeek == DayOfWeek.Saturday ? "Nghỉ Thứ Bảy (Lịch IRISO)" : "Ngày nghỉ");
-                    _companyHolidays.Add(new CompanyHoliday(clickedDate, name));
-                }
-
-                RefreshHolidaysUI();
-                InitDateComboBox();
-                RunAutoSchedule();
-            }
+            // Lịch ngày nghỉ công ty là cố định, chỉ hiển thị, không cho click đổi
+            // (Muốn chỉnh sửa lịch nghỉ thì liên hệ quản lý)
         }
 
         private void RefreshHolidaysUI()
