@@ -18,7 +18,7 @@ namespace OvertimeScheduler
         private ZaloBotService _zaloBot;
         private DateTime _weekStart;
         private DateTime _weekEnd;
-        private bool _saturdayWorking = false;
+
         private List<CompanyHoliday> _companyHolidays;
         private DateTime _currentCalendarMonth;
         private Button[] _calendarButtons = new Button[42];
@@ -281,7 +281,7 @@ namespace OvertimeScheduler
         private DateTime GetScheduleKey(DateTime date)
         {
             var holidayDates = _companyHolidays.Select(h => h.Date).ToList();
-            return SchedulerEngine.GetScheduleKey(date, _saturdayWorking, holidayDates);
+            return SchedulerEngine.GetScheduleKey(date, false, holidayDates);
         }
 
         private void InitDateComboBox()
@@ -307,18 +307,16 @@ namespace OvertimeScheduler
             }
 
             // 2. Thứ 7 (nếu không làm thường và không phải ngày lễ)
+            // Thứ 7 luôn là ngày tăng ca
             DateTime saturday = monday.AddDays(5);
-            if (!_saturdayWorking)
+            if (holidayDates.Contains(saturday))
             {
-                if (holidayDates.Contains(saturday))
-                {
-                    var h = _companyHolidays.First(x => x.Date == saturday);
-                    cbActiveDay.Items.Add(new DateItem(saturday, $"Ngày Lễ ({h.Name}: {saturday:dd/MM})"));
-                }
-                else
-                {
-                    cbActiveDay.Items.Add(new DateItem(saturday, $"Thứ Bảy (Tăng ca: {saturday:dd/MM})"));
-                }
+                var h = _companyHolidays.First(x => x.Date == saturday);
+                cbActiveDay.Items.Add(new DateItem(saturday, $"Ngày Lễ ({h.Name}: {saturday:dd/MM})"));
+            }
+            else
+            {
+                cbActiveDay.Items.Add(new DateItem(saturday, $"Thứ Bảy (Tăng ca: {saturday:dd/MM})"));
             }
 
             // 3. Chủ Nhật
@@ -361,7 +359,7 @@ namespace OvertimeScheduler
             int maxPerShift = (int)numMaxPerShift.Value;
             var holidayDates = _companyHolidays.Select(h => h.Date).ToList();
 
-            _schedule = SchedulerEngine.AutoSchedule(_employees, start, end, _saturdayWorking, maxPerShift, holidayDates);
+            _schedule = SchedulerEngine.AutoSchedule(_employees, start, end, false, maxPerShift, holidayDates);
             SaveSchedule();
             RedrawActiveDay();
             RefreshHolidaysUI(); // Cập nhật lịch ngày nghỉ để hiện mã NV nghỉ phép
@@ -730,7 +728,7 @@ namespace OvertimeScheduler
             try
             {
                 var holidayDates = _companyHolidays.Select(h => h.Date).ToList();
-                string filePath = ExcelService.ExportToExcel(_employees, _schedule, start, end, _saturdayWorking, holidayDates);
+                string filePath = ExcelService.ExportToExcel(_employees, _schedule, start, end, false, holidayDates);
                 Log("System", $"Đã xuất file Excel tại: {filePath}");
 
                 if (_zaloBot.IsRunning)
@@ -776,12 +774,6 @@ namespace OvertimeScheduler
             UpdateBudgetStatusAndChart();
         }
 
-        private void chkSaturdayWorking_CheckedChanged(object sender, EventArgs e)
-        {
-            _saturdayWorking = chkSaturdayWorking.Checked;
-            InitDateComboBox();
-            RunAutoSchedule();
-        }
 
         private void numMaxPerShift_ValueChanged(object sender, EventArgs e)
         {
@@ -889,7 +881,7 @@ namespace OvertimeScheduler
                     DateTime start = dtpFrom.Value.Date;
                     DateTime end = dtpTo.Value.Date;
                     var holidayDates = _companyHolidays.Select(h => h.Date).ToList();
-                    string filePath = ExcelService.ExportToExcel(_employees, _schedule, start, end, _saturdayWorking, holidayDates);
+                    string filePath = ExcelService.ExportToExcel(_employees, _schedule, start, end, false, holidayDates);
                     _zaloBot.SendExcelFile(filePath);
                 }
             }

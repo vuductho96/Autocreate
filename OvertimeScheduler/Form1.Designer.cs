@@ -70,7 +70,6 @@ namespace OvertimeScheduler
             this.tblCalendar = new System.Windows.Forms.TableLayoutPanel();
 
             this.grpScheduleConfig = new System.Windows.Forms.GroupBox();
-            this.chkSaturdayWorking = new System.Windows.Forms.CheckBox();
             this.lblMaxPerShift = new System.Windows.Forms.Label();
             this.numMaxPerShift = new System.Windows.Forms.NumericUpDown();
             this.lblMonthlyBudget = new System.Windows.Forms.Label();
@@ -594,7 +593,6 @@ namespace OvertimeScheduler
             // 
             // grpScheduleConfig
             // 
-            this.grpScheduleConfig.Controls.Add(this.chkSaturdayWorking);
             this.grpScheduleConfig.Controls.Add(this.lblMaxPerShift);
             this.grpScheduleConfig.Controls.Add(this.numMaxPerShift);
             this.grpScheduleConfig.Controls.Add(this.lblMonthlyBudget);
@@ -602,30 +600,17 @@ namespace OvertimeScheduler
             this.grpScheduleConfig.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.grpScheduleConfig.Location = new System.Drawing.Point(20, 20);
             this.grpScheduleConfig.Name = "grpScheduleConfig";
-            this.grpScheduleConfig.Size = new System.Drawing.Size(300, 160);
+            this.grpScheduleConfig.Size = new System.Drawing.Size(300, 120);
             this.grpScheduleConfig.TabIndex = 0;
             this.grpScheduleConfig.TabStop = false;
             this.grpScheduleConfig.Text = "Cấu hình thuật toán xếp ca";
-
-            // 
-            // chkSaturdayWorking
-            // 
-            this.chkSaturdayWorking.AutoSize = true;
-            this.chkSaturdayWorking.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.chkSaturdayWorking.Location = new System.Drawing.Point(15, 30);
-            this.chkSaturdayWorking.Name = "chkSaturdayWorking";
-            this.chkSaturdayWorking.Size = new System.Drawing.Size(130, 21);
-            this.chkSaturdayWorking.TabIndex = 0;
-            this.chkSaturdayWorking.Text = "Thứ 7 làm thường";
-            this.chkSaturdayWorking.UseVisualStyleBackColor = true;
-            this.chkSaturdayWorking.CheckedChanged += new System.EventHandler(this.chkSaturdayWorking_CheckedChanged);
 
             // 
             // lblMaxPerShift
             // 
             this.lblMaxPerShift.AutoSize = true;
             this.lblMaxPerShift.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblMaxPerShift.Location = new System.Drawing.Point(12, 65);
+            this.lblMaxPerShift.Location = new System.Drawing.Point(12, 30);
             this.lblMaxPerShift.Name = "lblMaxPerShift";
             this.lblMaxPerShift.Size = new System.Drawing.Size(107, 17);
             this.lblMaxPerShift.TabIndex = 1;
@@ -635,7 +620,7 @@ namespace OvertimeScheduler
             // numMaxPerShift
             // 
             this.numMaxPerShift.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.numMaxPerShift.Location = new System.Drawing.Point(160, 61);
+            this.numMaxPerShift.Location = new System.Drawing.Point(160, 26);
             this.numMaxPerShift.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             this.numMaxPerShift.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
             this.numMaxPerShift.Name = "numMaxPerShift";
@@ -649,7 +634,7 @@ namespace OvertimeScheduler
             // 
             this.lblMonthlyBudget.AutoSize = true;
             this.lblMonthlyBudget.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblMonthlyBudget.Location = new System.Drawing.Point(12, 105);
+            this.lblMonthlyBudget.Location = new System.Drawing.Point(12, 68);
             this.lblMonthlyBudget.Name = "lblMonthlyBudget";
             this.lblMonthlyBudget.Size = new System.Drawing.Size(115, 17);
             this.lblMonthlyBudget.TabIndex = 3;
@@ -659,7 +644,7 @@ namespace OvertimeScheduler
             // numMonthlyBudget
             // 
             this.numMonthlyBudget.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.numMonthlyBudget.Location = new System.Drawing.Point(160, 101);
+            this.numMonthlyBudget.Location = new System.Drawing.Point(160, 64);
             this.numMonthlyBudget.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
             this.numMonthlyBudget.Name = "numMonthlyBudget";
             this.numMonthlyBudget.Size = new System.Drawing.Size(60, 25);
@@ -803,7 +788,6 @@ namespace OvertimeScheduler
         private System.Windows.Forms.TableLayoutPanel tblCalendar;
 
         private System.Windows.Forms.GroupBox grpScheduleConfig;
-        private System.Windows.Forms.CheckBox chkSaturdayWorking;
         private System.Windows.Forms.Label lblMaxPerShift;
         private System.Windows.Forms.NumericUpDown numMaxPerShift;
         private System.Windows.Forms.Label lblMonthlyBudget;
