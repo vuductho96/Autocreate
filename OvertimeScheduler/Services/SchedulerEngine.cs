@@ -7,6 +7,35 @@ namespace OvertimeScheduler.Services
 {
     public class SchedulerEngine
     {
+        public static int GetIso8601WeekOfYear(DateTime time)
+        {
+            DayOfWeek day = System.Globalization.CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
+            if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
+            {
+                time = time.AddDays(3);
+            }
+            return System.Globalization.CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, System.Globalization.CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+        }
+
+        public static int GetEmployeeShiftGroup(string empId)
+        {
+            int idVal = 0;
+            string numStr = new string(empId.Where(char.IsDigit).ToArray());
+            if (int.TryParse(numStr, out idVal))
+            {
+                return idVal % 3;
+            }
+            return Math.Abs(empId.GetHashCode()) % 3;
+        }
+
+        // Trả về: 0 = Ca 1 (Ngày), 1 = Ca 3 (Đêm), 2 = Ca 2 (Về ca)
+        public static int GetShiftRotationForWeek(string empId, DateTime date)
+        {
+            int w = GetIso8601WeekOfYear(date);
+            int group = GetEmployeeShiftGroup(empId);
+            return ((w / 2) + group) % 3;
+        }
+
         public static List<ScheduleEntry> AutoSchedule(
             List<Employee> employees, 
             DateTime fromDate, 
@@ -109,27 +138,45 @@ namespace OvertimeScheduler.Services
                     return null;
                 }
 
-                // Ca Ngày: cần maxPerShift người
+                // Ca Ngày: lọc chỉ lấy Leader, Tech, hoặc Operator xoay ca == 0 (Ca 1/Ngày)
+                var poolDay = availableToday.Where(e => 
+                    e.Role == EmployeeRole.Leader || 
+                    e.Role == EmployeeRole.Technician || 
+                    ((e.Role == EmployeeRole.Worker || e.Role == EmployeeRole.NewWorker) && GetShiftRotationForWeek(e.Id, date) == 0)
+                ).ToList();
+
                 while (dayEntry.EmployeeIds.Count < maxPerShift)
                 {
-                    var emp = PickEmployee(availableToday, pickedToday);
+                    var emp = PickEmployee(poolDay, pickedToday);
                     if (emp == null) break;
                     dayEntry.EmployeeIds.Add(emp);
                 }
 
-                // Ca Đêm: cần maxPerShift người
+                // Ca Đêm: lọc lấy Leader, Tech (không lấy NewWorker), hoặc Operator xoay ca == 1 (Ca 3/Đêm)
+                var poolNight = availableToday.Where(e => 
+                    e.Role == EmployeeRole.Leader || 
+                    e.Role == EmployeeRole.Technician || 
+                    ((e.Role == EmployeeRole.Worker || e.Role == EmployeeRole.NewWorker) && GetShiftRotationForWeek(e.Id, date) == 1)
+                ).ToList();
+
                 while (nightEntry.EmployeeIds.Count < maxPerShift)
                 {
-                    var emp = PickEmployee(availableToday, pickedToday, e => e.Role != EmployeeRole.NewWorker);
-                    if (emp == null) emp = PickEmployee(availableToday, pickedToday);
+                    var emp = PickEmployee(poolNight, pickedToday, e => e.Role != EmployeeRole.NewWorker && e.Role != EmployeeRole.Leader);
+                    if (emp == null) emp = PickEmployee(poolNight, pickedToday);
                     if (emp == null) break;
                     nightEntry.EmployeeIds.Add(emp);
                 }
 
-                // Hành Chính: cần 1 người
+                // Hành Chính: lọc lấy Leader, Tech, hoặc Operator xoay ca == 0 hoặc 1 (loại trừ ca 2)
+                var poolAdmin = availableToday.Where(e => 
+                    e.Role == EmployeeRole.Leader || 
+                    e.Role == EmployeeRole.Technician || 
+                    ((e.Role == EmployeeRole.Worker || e.Role == EmployeeRole.NewWorker) && GetShiftRotationForWeek(e.Id, date) != 2)
+                ).ToList();
+
                 while (adminEntry.EmployeeIds.Count < 1)
                 {
-                    var emp = PickEmployee(availableToday, pickedToday);
+                    var emp = PickEmployee(poolAdmin, pickedToday);
                     if (emp == null) break;
                     adminEntry.EmployeeIds.Add(emp);
                 }

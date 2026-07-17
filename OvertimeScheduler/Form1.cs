@@ -84,12 +84,10 @@ namespace OvertimeScheduler
                     {
                         if (day <= 7)
                         {
-                            // Thứ 7 đầu tiên của tháng 2-12 là ngày đi làm (màu trắng)
                             isOff = false;
                         }
                         else
                         {
-                            // Các Thứ 7 còn lại là ngày nghỉ (màu hồng)
                             isOff = true;
                             holidayName = "Nghỉ Thứ Bảy (Lịch IRISO)";
                         }
@@ -304,6 +302,13 @@ namespace OvertimeScheduler
 
                 if (!assignedAllToday.Contains(emp.Id) && matchesSearch && !isOnLeave)
                 {
+                    // Lọc xoay ca: nếu là Operator (Worker/NewWorker) thì ẩn khỏi pool nếu tuần này thuộc ca 2 (Về ca)
+                    if (emp.Role == EmployeeRole.Worker || emp.Role == EmployeeRole.NewWorker)
+                    {
+                        int rot = SchedulerEngine.GetShiftRotationForWeek(emp.Id, activeDate);
+                        if (rot == 2) continue; // Ca 2 không đi làm thêm/overtime
+                    }
+
                     flowEmployeePool.Controls.Add(CreateEmployeeCard(emp, "Pool"));
                     poolCount++;
                     if (poolCount >= 50) break;
@@ -640,6 +645,28 @@ namespace OvertimeScheduler
             else if (targetPanel == flowAdminShift) targetShift = "Hành chính";
 
             if (string.IsNullOrEmpty(targetShift)) return;
+
+            // Kiểm tra phân ca xoay ca 2 tuần ngày, 2 tuần đêm
+            var emp = _employees.FirstOrDefault(x => x.Id == employeeId);
+            if (emp != null && (emp.Role == EmployeeRole.Worker || emp.Role == EmployeeRole.NewWorker))
+            {
+                int rot = SchedulerEngine.GetShiftRotationForWeek(emp.Id, activeDate);
+                if (rot == 2)
+                {
+                    MessageBox.Show($"Nhân viên {emp.Name} đang trong tuần 'về ca' ở ca 2, không xếp lịch tăng ca được!", "Lưu ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (targetShift == "Ngày" && rot != 0)
+                {
+                    MessageBox.Show($"Nhân viên {emp.Name} đang trong tuần làm ca đêm (ca 3), không xếp vào ca ngày được!", "Lưu ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (targetShift == "Đêm" && rot != 1)
+                {
+                    MessageBox.Show($"Nhân viên {emp.Name} đang trong tuần làm ca ngày (ca 1), không xếp vào ca đêm được!", "Lưu ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
 
             foreach (var shiftName in new[] { "Ngày", "Đêm", "Hành chính" })
             {

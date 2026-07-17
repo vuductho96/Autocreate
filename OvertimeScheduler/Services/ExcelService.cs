@@ -96,37 +96,39 @@ namespace OvertimeScheduler.Services
             ws.Cell(rTitle, 1).Value = title;
             ws.Cell(rTitle, 1).Style.Font.Bold = true;
             ws.Cell(rTitle, 1).Style.Font.FontSize = 12;
+            ws.Cell(rTitle, 1).Style.Font.FontColor = XLColor.Black;
             ws.Cell(rTitle, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             ws.Cell(rTitle, 1).Style.Fill.BackgroundColor = XLColor.FromHtml("#ffff00"); // Yellow
             ws.Range(rTitle, 1, rTitle, 8).Merge();
 
-            // 2. Ghi Headers ca trực
+            // 2. Ghi Headers ca trực (Toàn bộ chữ ĐEN)
             // CA 1 (Ngày) - Columns A-B (1-2)
             ws.Cell(rHeader, 1).Value = "CA 1 (6:00~14:00)";
             ws.Range(rHeader, 1, rHeader, 2).Merge();
             ws.Range(rHeader, 1, rHeader, 2).Style.Fill.BackgroundColor = XLColor.FromHtml("#00b0f0"); // Blue
             ws.Range(rHeader, 1, rHeader, 2).Style.Font.Bold = true;
-            ws.Range(rHeader, 1, rHeader, 2).Style.Font.FontColor = XLColor.White;
+            ws.Range(rHeader, 1, rHeader, 2).Style.Font.FontColor = XLColor.Black;
 
-            // CA 2 (Rỗng) - Columns C-D (3-4)
+            // CA 2 (Về ca) - Columns C-D (3-4)
             ws.Cell(rHeader, 3).Value = "CA 2 (14:00~22:00)";
             ws.Range(rHeader, 3, rHeader, 4).Merge();
             ws.Range(rHeader, 3, rHeader, 4).Style.Fill.BackgroundColor = XLColor.FromHtml("#f2f2f2"); // Light Gray
             ws.Range(rHeader, 3, rHeader, 4).Style.Font.Bold = true;
+            ws.Range(rHeader, 3, rHeader, 4).Style.Font.FontColor = XLColor.Black;
 
             // CA 3 (Đêm) - Columns E-F (5-6)
             ws.Cell(rHeader, 5).Value = "CA 3 (22:00~6:00)";
             ws.Range(rHeader, 5, rHeader, 6).Merge();
             ws.Range(rHeader, 5, rHeader, 6).Style.Fill.BackgroundColor = XLColor.FromHtml("#ffc000"); // Orange
             ws.Range(rHeader, 5, rHeader, 6).Style.Font.Bold = true;
-            ws.Range(rHeader, 5, rHeader, 6).Style.Font.FontColor = XLColor.White;
+            ws.Range(rHeader, 5, rHeader, 6).Style.Font.FontColor = XLColor.Black;
 
             // HÀNH CHÍNH - Columns G-H (7-8)
             ws.Cell(rHeader, 7).Value = "HÀNH CHÍNH";
             ws.Range(rHeader, 7, rHeader, 8).Merge();
             ws.Range(rHeader, 7, rHeader, 8).Style.Fill.BackgroundColor = XLColor.FromHtml("#92d050"); // Light Green
             ws.Range(rHeader, 7, rHeader, 8).Style.Font.Bold = true;
-            ws.Range(rHeader, 7, rHeader, 8).Style.Font.FontColor = XLColor.White;
+            ws.Range(rHeader, 7, rHeader, 8).Style.Font.FontColor = XLColor.Black;
 
             // Định dạng headers
             var headerRange = ws.Range(rHeader, 1, rHeader, 8);
@@ -140,7 +142,14 @@ namespace OvertimeScheduler.Services
             var nightIds = schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Đêm")?.EmployeeIds ?? new List<string>();
             var adminIds = schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Hành chính")?.EmployeeIds ?? new List<string>();
 
-            int maxRows = Math.Max(dayIds.Count, Math.Max(nightIds.Count, adminIds.Count));
+            // Lấy danh sách nhân viên xoay ca về Ca 2 cho tuần này
+            var ca2Employees = employees
+                .Where(e => (e.Role == EmployeeRole.Worker || e.Role == EmployeeRole.NewWorker) 
+                            && SchedulerEngine.GetShiftRotationForWeek(e.Id, queryDate) == 2)
+                .OrderBy(e => e.Id)
+                .ToList();
+
+            int maxRows = Math.Max(dayIds.Count, Math.Max(nightIds.Count, Math.Max(adminIds.Count, ca2Employees.Count)));
             if (maxRows == 0) maxRows = 1; // Tạo ít nhất 1 dòng trống để kéo lưới
 
             for (int i = 0; i < maxRows; i++)
@@ -158,7 +167,13 @@ namespace OvertimeScheduler.Services
                     }
                 }
 
-                // CA 2 (Rỗng)
+                // CA 2 (Về ca)
+                if (i < ca2Employees.Count)
+                {
+                    var emp = ca2Employees[i];
+                    ws.Cell(r, 3).Value = emp.Id;
+                    ws.Cell(r, 4).Value = FormatEmployeeNameExcel(emp, queryDate);
+                }
 
                 // CA 3 (Đêm)
                 if (i < nightIds.Count)
@@ -182,10 +197,11 @@ namespace OvertimeScheduler.Services
                     }
                 }
 
-                // Định dạng borders cho dòng data
+                // Định dạng borders và màu chữ đen cho dòng data
                 var dataRowRange = ws.Range(r, 1, r, 8);
                 dataRowRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 dataRowRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                dataRowRange.Style.Font.FontColor = XLColor.Black;
                 
                 // Align IDs to center
                 ws.Cell(r, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
