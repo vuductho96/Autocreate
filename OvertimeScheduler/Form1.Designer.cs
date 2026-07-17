@@ -33,19 +33,11 @@ namespace OvertimeScheduler
             this.dtpFrom = new System.Windows.Forms.DateTimePicker();
             this.lblTo = new System.Windows.Forms.Label();
             this.dtpTo = new System.Windows.Forms.DateTimePicker();
-            this.chkSaturdayWorking = new System.Windows.Forms.CheckBox();
-            this.lblMaxPerShift = new System.Windows.Forms.Label();
-            this.numMaxPerShift = new System.Windows.Forms.NumericUpDown();
-            this.lblMonthlyBudget = new System.Windows.Forms.Label();
-            this.numMonthlyBudget = new System.Windows.Forms.NumericUpDown();
             this.lblActiveDay = new System.Windows.Forms.Label();
             this.cbActiveDay = new System.Windows.Forms.ComboBox();
             this.btnAutoSchedule = new System.Windows.Forms.Button();
             this.btnExportExcel = new System.Windows.Forms.Button();
             this.lblBudgetStatus = new System.Windows.Forms.Label();
-            this.lblZalo = new System.Windows.Forms.Label();
-            this.txtZaloGroupName = new System.Windows.Forms.TextBox();
-            this.btnToggleZalo = new System.Windows.Forms.Button();
             
             this.panelSidebar = new System.Windows.Forms.Panel();
             this.groupSidebar = new System.Windows.Forms.GroupBox();
@@ -57,6 +49,7 @@ namespace OvertimeScheduler
             this.tabPageSchedule = new System.Windows.Forms.TabPage();
             this.tabPageChart = new System.Windows.Forms.TabPage();
             this.tabPageHolidays = new System.Windows.Forms.TabPage();
+            this.tabPageSettings = new System.Windows.Forms.TabPage();
             
             this.tableLayoutPanelShifts = new System.Windows.Forms.TableLayoutPanel();
             this.groupDayShift = new System.Windows.Forms.GroupBox();
@@ -77,9 +70,19 @@ namespace OvertimeScheduler
             this.groupHolidaysList = new System.Windows.Forms.GroupBox();
             this.lstHolidays = new System.Windows.Forms.ListBox();
 
+            this.grpScheduleConfig = new System.Windows.Forms.GroupBox();
+            this.chkSaturdayWorking = new System.Windows.Forms.CheckBox();
+            this.lblMaxPerShift = new System.Windows.Forms.Label();
+            this.numMaxPerShift = new System.Windows.Forms.NumericUpDown();
+            this.lblMonthlyBudget = new System.Windows.Forms.Label();
+            this.numMonthlyBudget = new System.Windows.Forms.NumericUpDown();
+
+            this.grpZaloConfig = new System.Windows.Forms.GroupBox();
+            this.lblZalo = new System.Windows.Forms.Label();
+            this.txtZaloGroupName = new System.Windows.Forms.TextBox();
+            this.btnToggleZalo = new System.Windows.Forms.Button();
+
             this.panelTop.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numMaxPerShift)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numMonthlyBudget)).BeginInit();
             this.panelSidebar.SuspendLayout();
             this.groupSidebar.SuspendLayout();
             this.panelMain.SuspendLayout();
@@ -87,6 +90,7 @@ namespace OvertimeScheduler
             this.tabPageSchedule.SuspendLayout();
             this.tabPageChart.SuspendLayout();
             this.tabPageHolidays.SuspendLayout();
+            this.tabPageSettings.SuspendLayout();
             this.tableLayoutPanelShifts.SuspendLayout();
             this.groupDayShift.SuspendLayout();
             this.groupNightShift.SuspendLayout();
@@ -94,6 +98,10 @@ namespace OvertimeScheduler
             this.tableLayoutPanelHolidays.SuspendLayout();
             this.panelHolidayLeft.SuspendLayout();
             this.groupHolidaysList.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numMaxPerShift)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numMonthlyBudget)).BeginInit();
+            this.grpScheduleConfig.SuspendLayout();
+            this.grpZaloConfig.SuspendLayout();
             this.SuspendLayout();
 
             // 
@@ -105,23 +113,15 @@ namespace OvertimeScheduler
             this.panelTop.Controls.Add(this.dtpFrom);
             this.panelTop.Controls.Add(this.lblTo);
             this.panelTop.Controls.Add(this.dtpTo);
-            this.panelTop.Controls.Add(this.chkSaturdayWorking);
-            this.panelTop.Controls.Add(this.lblMaxPerShift);
-            this.panelTop.Controls.Add(this.numMaxPerShift);
-            this.panelTop.Controls.Add(this.lblMonthlyBudget);
-            this.panelTop.Controls.Add(this.numMonthlyBudget);
             this.panelTop.Controls.Add(this.lblActiveDay);
             this.panelTop.Controls.Add(this.cbActiveDay);
             this.panelTop.Controls.Add(this.btnAutoSchedule);
             this.panelTop.Controls.Add(this.btnExportExcel);
             this.panelTop.Controls.Add(this.lblBudgetStatus);
-            this.panelTop.Controls.Add(this.lblZalo);
-            this.panelTop.Controls.Add(this.txtZaloGroupName);
-            this.panelTop.Controls.Add(this.btnToggleZalo);
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTop.Location = new System.Drawing.Point(0, 0);
             this.panelTop.Name = "panelTop";
-            this.panelTop.Size = new System.Drawing.Size(1008, 68);
+            this.panelTop.Size = new System.Drawing.Size(1008, 45);
             this.panelTop.TabIndex = 0;
 
             // 
@@ -129,7 +129,7 @@ namespace OvertimeScheduler
             // 
             this.lblFrom.AutoSize = true;
             this.lblFrom.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblFrom.Location = new System.Drawing.Point(10, 12);
+            this.lblFrom.Location = new System.Drawing.Point(10, 14);
             this.lblFrom.Name = "lblFrom";
             this.lblFrom.Size = new System.Drawing.Size(26, 15);
             this.lblFrom.TabIndex = 0;
@@ -140,9 +140,9 @@ namespace OvertimeScheduler
             // 
             this.dtpFrom.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.dtpFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpFrom.Location = new System.Drawing.Point(45, 8);
+            this.dtpFrom.Location = new System.Drawing.Point(40, 10);
             this.dtpFrom.Name = "dtpFrom";
-            this.dtpFrom.Size = new System.Drawing.Size(95, 23);
+            this.dtpFrom.Size = new System.Drawing.Size(90, 23);
             this.dtpFrom.TabIndex = 1;
             this.dtpFrom.ValueChanged += new System.EventHandler(this.dtpDateRange_ValueChanged);
 
@@ -151,7 +151,7 @@ namespace OvertimeScheduler
             // 
             this.lblTo.AutoSize = true;
             this.lblTo.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblTo.Location = new System.Drawing.Point(150, 12);
+            this.lblTo.Location = new System.Drawing.Point(140, 14);
             this.lblTo.Name = "lblTo";
             this.lblTo.Size = new System.Drawing.Size(32, 15);
             this.lblTo.TabIndex = 2;
@@ -162,81 +162,21 @@ namespace OvertimeScheduler
             // 
             this.dtpTo.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpTo.Location = new System.Drawing.Point(185, 8);
+            this.dtpTo.Location = new System.Drawing.Point(175, 10);
             this.dtpTo.Name = "dtpTo";
-            this.dtpTo.Size = new System.Drawing.Size(95, 23);
+            this.dtpTo.Size = new System.Drawing.Size(90, 23);
             this.dtpTo.TabIndex = 3;
             this.dtpTo.ValueChanged += new System.EventHandler(this.dtpDateRange_ValueChanged);
-
-            // 
-            // chkSaturdayWorking
-            // 
-            this.chkSaturdayWorking.AutoSize = true;
-            this.chkSaturdayWorking.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.chkSaturdayWorking.Location = new System.Drawing.Point(290, 10);
-            this.chkSaturdayWorking.Name = "chkSaturdayWorking";
-            this.chkSaturdayWorking.Size = new System.Drawing.Size(125, 19);
-            this.chkSaturdayWorking.TabIndex = 4;
-            this.chkSaturdayWorking.Text = "Thứ 7 làm thường";
-            this.chkSaturdayWorking.UseVisualStyleBackColor = true;
-            this.chkSaturdayWorking.CheckedChanged += new System.EventHandler(this.chkSaturdayWorking_CheckedChanged);
-
-            // 
-            // lblMaxPerShift
-            // 
-            this.lblMaxPerShift.AutoSize = true;
-            this.lblMaxPerShift.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblMaxPerShift.Location = new System.Drawing.Point(425, 12);
-            this.lblMaxPerShift.Name = "lblMaxPerShift";
-            this.lblMaxPerShift.Size = new System.Drawing.Size(60, 15);
-            this.lblMaxPerShift.TabIndex = 5;
-            this.lblMaxPerShift.Text = "Người/ca:";
-
-            // 
-            // numMaxPerShift
-            // 
-            this.numMaxPerShift.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.numMaxPerShift.Location = new System.Drawing.Point(485, 8);
-            this.numMaxPerShift.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-            this.numMaxPerShift.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
-            this.numMaxPerShift.Name = "numMaxPerShift";
-            this.numMaxPerShift.Size = new System.Drawing.Size(40, 23);
-            this.numMaxPerShift.TabIndex = 6;
-            this.numMaxPerShift.Value = new decimal(new int[] { 2, 0, 0, 0 });
-            this.numMaxPerShift.ValueChanged += new System.EventHandler(this.numMaxPerShift_ValueChanged);
-
-            // 
-            // lblMonthlyBudget
-            // 
-            this.lblMonthlyBudget.AutoSize = true;
-            this.lblMonthlyBudget.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblMonthlyBudget.Location = new System.Drawing.Point(535, 12);
-            this.lblMonthlyBudget.Name = "lblMonthlyBudget";
-            this.lblMonthlyBudget.Size = new System.Drawing.Size(44, 15);
-            this.lblMonthlyBudget.TabIndex = 7;
-            this.lblMonthlyBudget.Text = "Quỹ 1T:";
-
-            // 
-            // numMonthlyBudget
-            // 
-            this.numMonthlyBudget.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.numMonthlyBudget.Location = new System.Drawing.Point(580, 8);
-            this.numMonthlyBudget.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
-            this.numMonthlyBudget.Name = "numMonthlyBudget";
-            this.numMonthlyBudget.Size = new System.Drawing.Size(50, 23);
-            this.numMonthlyBudget.TabIndex = 8;
-            this.numMonthlyBudget.Value = new decimal(new int[] { 200, 0, 0, 0 });
-            this.numMonthlyBudget.ValueChanged += new System.EventHandler(this.numMonthlyBudget_ValueChanged);
 
             // 
             // lblActiveDay
             // 
             this.lblActiveDay.AutoSize = true;
             this.lblActiveDay.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblActiveDay.Location = new System.Drawing.Point(640, 12);
+            this.lblActiveDay.Location = new System.Drawing.Point(275, 14);
             this.lblActiveDay.Name = "lblActiveDay";
             this.lblActiveDay.Size = new System.Drawing.Size(61, 15);
-            this.lblActiveDay.TabIndex = 9;
+            this.lblActiveDay.TabIndex = 4;
             this.lblActiveDay.Text = "Ngày xếp:";
 
             // 
@@ -245,23 +185,11 @@ namespace OvertimeScheduler
             this.cbActiveDay.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbActiveDay.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.cbActiveDay.FormattingEnabled = true;
-            this.cbActiveDay.Location = new System.Drawing.Point(705, 8);
+            this.cbActiveDay.Location = new System.Drawing.Point(340, 10);
             this.cbActiveDay.Name = "cbActiveDay";
-            this.cbActiveDay.Size = new System.Drawing.Size(135, 23);
-            this.cbActiveDay.TabIndex = 10;
+            this.cbActiveDay.Size = new System.Drawing.Size(150, 23);
+            this.cbActiveDay.TabIndex = 5;
             this.cbActiveDay.SelectedIndexChanged += new System.EventHandler(this.cbActiveDay_SelectedIndexChanged);
-
-            // 
-            // lblBudgetStatus
-            // 
-            this.lblBudgetStatus.AutoSize = true;
-            this.lblBudgetStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblBudgetStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(125)))), ((int)(((byte)(50)))));
-            this.lblBudgetStatus.Location = new System.Drawing.Point(850, 12);
-            this.lblBudgetStatus.Name = "lblBudgetStatus";
-            this.lblBudgetStatus.Size = new System.Drawing.Size(155, 15);
-            this.lblBudgetStatus.TabIndex = 11;
-            this.lblBudgetStatus.Text = "Đã xếp: 0 giờ | Còn lại: 0 giờ";
 
             // 
             // btnAutoSchedule
@@ -270,10 +198,10 @@ namespace OvertimeScheduler
             this.btnAutoSchedule.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAutoSchedule.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnAutoSchedule.ForeColor = System.Drawing.Color.White;
-            this.btnAutoSchedule.Location = new System.Drawing.Point(10, 36);
+            this.btnAutoSchedule.Location = new System.Drawing.Point(500, 8);
             this.btnAutoSchedule.Name = "btnAutoSchedule";
-            this.btnAutoSchedule.Size = new System.Drawing.Size(130, 25);
-            this.btnAutoSchedule.TabIndex = 12;
+            this.btnAutoSchedule.Size = new System.Drawing.Size(125, 27);
+            this.btnAutoSchedule.TabIndex = 6;
             this.btnAutoSchedule.Text = "Tự Động Xếp Lịch";
             this.btnAutoSchedule.UseVisualStyleBackColor = false;
             this.btnAutoSchedule.Click += new System.EventHandler(this.btnAutoSchedule_Click);
@@ -285,59 +213,35 @@ namespace OvertimeScheduler
             this.btnExportExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportExcel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnExportExcel.ForeColor = System.Drawing.Color.White;
-            this.btnExportExcel.Location = new System.Drawing.Point(150, 36);
+            this.btnExportExcel.Location = new System.Drawing.Point(635, 8);
             this.btnExportExcel.Name = "btnExportExcel";
-            this.btnExportExcel.Size = new System.Drawing.Size(130, 25);
-            this.btnExportExcel.TabIndex = 13;
+            this.btnExportExcel.Size = new System.Drawing.Size(155, 27);
+            this.btnExportExcel.TabIndex = 7;
             this.btnExportExcel.Text = "Xuất Excel & Gửi Zalo";
             this.btnExportExcel.UseVisualStyleBackColor = false;
             this.btnExportExcel.Click += new System.EventHandler(this.btnExportExcel_Click);
 
             // 
-            // lblZalo
+            // lblBudgetStatus
             // 
-            this.lblZalo.AutoSize = true;
-            this.lblZalo.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblZalo.Location = new System.Drawing.Point(290, 41);
-            this.lblZalo.Name = "lblZalo";
-            this.lblZalo.Size = new System.Drawing.Size(73, 15);
-            this.lblZalo.TabIndex = 14;
-            this.lblZalo.Text = "Nhóm Zalo:";
-
-            // 
-            // txtZaloGroupName
-            // 
-            this.txtZaloGroupName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.txtZaloGroupName.Location = new System.Drawing.Point(365, 37);
-            this.txtZaloGroupName.Name = "txtZaloGroupName";
-            this.txtZaloGroupName.Size = new System.Drawing.Size(150, 23);
-            this.txtZaloGroupName.TabIndex = 15;
-            this.txtZaloGroupName.Text = "Test Group";
-
-            // 
-            // btnToggleZalo
-            // 
-            this.btnToggleZalo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(104)))), ((int)(((byte)(156)))));
-            this.btnToggleZalo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnToggleZalo.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnToggleZalo.ForeColor = System.Drawing.Color.White;
-            this.btnToggleZalo.Location = new System.Drawing.Point(525, 36);
-            this.btnToggleZalo.Name = "btnToggleZalo";
-            this.btnToggleZalo.Size = new System.Drawing.Size(100, 25);
-            this.btnToggleZalo.TabIndex = 16;
-            this.btnToggleZalo.Text = "Bật Zalo Bot";
-            this.btnToggleZalo.UseVisualStyleBackColor = false;
-            this.btnToggleZalo.Click += new System.EventHandler(this.btnToggleZalo_Click);
+            this.lblBudgetStatus.AutoSize = true;
+            this.lblBudgetStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lblBudgetStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(125)))), ((int)(((byte)(50)))));
+            this.lblBudgetStatus.Location = new System.Drawing.Point(800, 14);
+            this.lblBudgetStatus.Name = "lblBudgetStatus";
+            this.lblBudgetStatus.Size = new System.Drawing.Size(155, 15);
+            this.lblBudgetStatus.TabIndex = 8;
+            this.lblBudgetStatus.Text = "Đã xếp: 0 giờ | Còn lại: 0 giờ";
 
             // 
             // panelSidebar
             // 
             this.panelSidebar.Controls.Add(this.groupSidebar);
             this.panelSidebar.Dock = System.Windows.Forms.DockStyle.Left;
-            this.panelSidebar.Location = new System.Drawing.Point(0, 68);
+            this.panelSidebar.Location = new System.Drawing.Point(0, 45);
             this.panelSidebar.Name = "panelSidebar";
             this.panelSidebar.Padding = new System.Windows.Forms.Padding(10);
-            this.panelSidebar.Size = new System.Drawing.Size(300, 582);
+            this.panelSidebar.Size = new System.Drawing.Size(300, 605);
             this.panelSidebar.TabIndex = 1;
 
             // 
@@ -350,7 +254,7 @@ namespace OvertimeScheduler
             this.groupSidebar.Location = new System.Drawing.Point(10, 10);
             this.groupSidebar.Name = "groupSidebar";
             this.groupSidebar.Padding = new System.Windows.Forms.Padding(8);
-            this.groupSidebar.Size = new System.Drawing.Size(280, 562);
+            this.groupSidebar.Size = new System.Drawing.Size(280, 585);
             this.groupSidebar.TabIndex = 0;
             this.groupSidebar.TabStop = false;
             this.groupSidebar.Text = "DANH SÁCH NHÂN SỰ";
@@ -362,7 +266,7 @@ namespace OvertimeScheduler
             this.flowEmployeePool.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowEmployeePool.Location = new System.Drawing.Point(8, 51);
             this.flowEmployeePool.Name = "flowEmployeePool";
-            this.flowEmployeePool.Size = new System.Drawing.Size(264, 503);
+            this.flowEmployeePool.Size = new System.Drawing.Size(264, 526);
             this.flowEmployeePool.TabIndex = 1;
 
             // 
@@ -383,10 +287,10 @@ namespace OvertimeScheduler
             // 
             this.panelMain.Controls.Add(this.tabControlMain);
             this.panelMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelMain.Location = new System.Drawing.Point(300, 68);
+            this.panelMain.Location = new System.Drawing.Point(300, 45);
             this.panelMain.Name = "panelMain";
             this.panelMain.Padding = new System.Windows.Forms.Padding(5, 10, 10, 10);
-            this.panelMain.Size = new System.Drawing.Size(708, 582);
+            this.panelMain.Size = new System.Drawing.Size(708, 605);
             this.panelMain.TabIndex = 2;
 
             // 
@@ -395,12 +299,13 @@ namespace OvertimeScheduler
             this.tabControlMain.Controls.Add(this.tabPageSchedule);
             this.tabControlMain.Controls.Add(this.tabPageChart);
             this.tabControlMain.Controls.Add(this.tabPageHolidays);
+            this.tabControlMain.Controls.Add(this.tabPageSettings);
             this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControlMain.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.tabControlMain.Location = new System.Drawing.Point(5, 10);
             this.tabControlMain.Name = "tabControlMain";
             this.tabControlMain.SelectedIndex = 0;
-            this.tabControlMain.Size = new System.Drawing.Size(693, 562);
+            this.tabControlMain.Size = new System.Drawing.Size(693, 585);
             this.tabControlMain.TabIndex = 0;
 
             // 
@@ -410,7 +315,7 @@ namespace OvertimeScheduler
             this.tabPageSchedule.Location = new System.Drawing.Point(4, 24);
             this.tabPageSchedule.Name = "tabPageSchedule";
             this.tabPageSchedule.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSchedule.Size = new System.Drawing.Size(685, 534);
+            this.tabPageSchedule.Size = new System.Drawing.Size(685, 557);
             this.tabPageSchedule.TabIndex = 0;
             this.tabPageSchedule.Text = "BẢNG XẾP LỊCH";
             this.tabPageSchedule.UseVisualStyleBackColor = true;
@@ -422,7 +327,7 @@ namespace OvertimeScheduler
             this.tabPageChart.Location = new System.Drawing.Point(4, 24);
             this.tabPageChart.Name = "tabPageChart";
             this.tabPageChart.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageChart.Size = new System.Drawing.Size(685, 534);
+            this.tabPageChart.Size = new System.Drawing.Size(685, 557);
             this.tabPageChart.TabIndex = 1;
             this.tabPageChart.Text = "BIỂU ĐỒ THỐNG KÊ";
             this.tabPageChart.UseVisualStyleBackColor = true;
@@ -434,10 +339,23 @@ namespace OvertimeScheduler
             this.tabPageHolidays.Location = new System.Drawing.Point(4, 24);
             this.tabPageHolidays.Name = "tabPageHolidays";
             this.tabPageHolidays.Padding = new System.Windows.Forms.Padding(5);
-            this.tabPageHolidays.Size = new System.Drawing.Size(685, 534);
+            this.tabPageHolidays.Size = new System.Drawing.Size(685, 557);
             this.tabPageHolidays.TabIndex = 2;
             this.tabPageHolidays.Text = "NGÀY NGHỈ CÔNG TY";
             this.tabPageHolidays.UseVisualStyleBackColor = true;
+
+            // 
+            // tabPageSettings
+            // 
+            this.tabPageSettings.Controls.Add(this.grpScheduleConfig);
+            this.tabPageSettings.Controls.Add(this.grpZaloConfig);
+            this.tabPageSettings.Location = new System.Drawing.Point(4, 24);
+            this.tabPageSettings.Name = "tabPageSettings";
+            this.tabPageSettings.Padding = new System.Windows.Forms.Padding(10);
+            this.tabPageSettings.Size = new System.Drawing.Size(685, 557);
+            this.tabPageSettings.TabIndex = 3;
+            this.tabPageSettings.Text = "CÀI ĐẶT CẤU HÌNH";
+            this.tabPageSettings.UseVisualStyleBackColor = true;
 
             // 
             // tableLayoutPanelShifts
@@ -454,7 +372,7 @@ namespace OvertimeScheduler
             this.tableLayoutPanelShifts.Name = "tableLayoutPanelShifts";
             this.tableLayoutPanelShifts.RowCount = 1;
             this.tableLayoutPanelShifts.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelShifts.Size = new System.Drawing.Size(679, 528);
+            this.tableLayoutPanelShifts.Size = new System.Drawing.Size(679, 551);
             this.tableLayoutPanelShifts.TabIndex = 0;
 
             // 
@@ -466,7 +384,7 @@ namespace OvertimeScheduler
             this.groupAdminShift.Location = new System.Drawing.Point(456, 3);
             this.groupAdminShift.Name = "groupAdminShift";
             this.groupAdminShift.Padding = new System.Windows.Forms.Padding(6);
-            this.groupAdminShift.Size = new System.Drawing.Size(220, 522);
+            this.groupAdminShift.Size = new System.Drawing.Size(220, 545);
             this.groupAdminShift.TabIndex = 2;
             this.groupAdminShift.TabStop = false;
             this.groupAdminShift.Text = "HÀNH CHÍNH";
@@ -480,7 +398,7 @@ namespace OvertimeScheduler
             this.flowAdminShift.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowAdminShift.Location = new System.Drawing.Point(6, 22);
             this.flowAdminShift.Name = "flowAdminShift";
-            this.flowAdminShift.Size = new System.Drawing.Size(208, 494);
+            this.flowAdminShift.Size = new System.Drawing.Size(208, 517);
             this.flowAdminShift.TabIndex = 1;
             this.flowAdminShift.DragDrop += new System.Windows.Forms.DragEventHandler(this.flowShift_DragDrop);
             this.flowAdminShift.DragEnter += new System.Windows.Forms.DragEventHandler(this.flowShift_DragEnter);
@@ -494,7 +412,7 @@ namespace OvertimeScheduler
             this.groupNightShift.Location = new System.Drawing.Point(229, 3);
             this.groupNightShift.Name = "groupNightShift";
             this.groupNightShift.Padding = new System.Windows.Forms.Padding(6);
-            this.groupNightShift.Size = new System.Drawing.Size(221, 522);
+            this.groupNightShift.Size = new System.Drawing.Size(221, 545);
             this.groupNightShift.TabIndex = 1;
             this.groupNightShift.TabStop = false;
             this.groupNightShift.Text = "CA ĐÊM";
@@ -508,7 +426,7 @@ namespace OvertimeScheduler
             this.flowNightShift.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowNightShift.Location = new System.Drawing.Point(6, 22);
             this.flowNightShift.Name = "flowNightShift";
-            this.flowNightShift.Size = new System.Drawing.Size(209, 494);
+            this.flowNightShift.Size = new System.Drawing.Size(209, 517);
             this.flowNightShift.TabIndex = 1;
             this.flowNightShift.DragDrop += new System.Windows.Forms.DragEventHandler(this.flowShift_DragDrop);
             this.flowNightShift.DragEnter += new System.Windows.Forms.DragEventHandler(this.flowShift_DragEnter);
@@ -522,7 +440,7 @@ namespace OvertimeScheduler
             this.groupDayShift.Location = new System.Drawing.Point(3, 3);
             this.groupDayShift.Name = "groupDayShift";
             this.groupDayShift.Padding = new System.Windows.Forms.Padding(6);
-            this.groupDayShift.Size = new System.Drawing.Size(220, 522);
+            this.groupDayShift.Size = new System.Drawing.Size(220, 545);
             this.groupDayShift.TabIndex = 0;
             this.groupDayShift.TabStop = false;
             this.groupDayShift.Text = "CA NGÀY";
@@ -536,7 +454,7 @@ namespace OvertimeScheduler
             this.flowDayShift.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowDayShift.Location = new System.Drawing.Point(6, 22);
             this.flowDayShift.Name = "flowDayShift";
-            this.flowDayShift.Size = new System.Drawing.Size(208, 494);
+            this.flowDayShift.Size = new System.Drawing.Size(208, 517);
             this.flowDayShift.TabIndex = 0;
             this.flowDayShift.DragDrop += new System.Windows.Forms.DragEventHandler(this.flowShift_DragDrop);
             this.flowDayShift.DragEnter += new System.Windows.Forms.DragEventHandler(this.flowShift_DragEnter);
@@ -548,7 +466,7 @@ namespace OvertimeScheduler
             this.overtimeChart.Dock = System.Windows.Forms.DockStyle.Fill;
             this.overtimeChart.Location = new System.Drawing.Point(3, 3);
             this.overtimeChart.Name = "overtimeChart";
-            this.overtimeChart.Size = new System.Drawing.Size(679, 528);
+            this.overtimeChart.Size = new System.Drawing.Size(679, 551);
             this.overtimeChart.TabIndex = 0;
 
             // 
@@ -564,7 +482,7 @@ namespace OvertimeScheduler
             this.tableLayoutPanelHolidays.Name = "tableLayoutPanelHolidays";
             this.tableLayoutPanelHolidays.RowCount = 1;
             this.tableLayoutPanelHolidays.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelHolidays.Size = new System.Drawing.Size(675, 524);
+            this.tableLayoutPanelHolidays.Size = new System.Drawing.Size(675, 547);
             this.tableLayoutPanelHolidays.TabIndex = 0;
 
             // 
@@ -578,7 +496,7 @@ namespace OvertimeScheduler
             this.panelHolidayLeft.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelHolidayLeft.Location = new System.Drawing.Point(3, 3);
             this.panelHolidayLeft.Name = "panelHolidayLeft";
-            this.panelHolidayLeft.Size = new System.Drawing.Size(277, 518);
+            this.panelHolidayLeft.Size = new System.Drawing.Size(277, 541);
             this.panelHolidayLeft.TabIndex = 0;
 
             // 
@@ -648,7 +566,7 @@ namespace OvertimeScheduler
             this.groupHolidaysList.Location = new System.Drawing.Point(286, 3);
             this.groupHolidaysList.Name = "groupHolidaysList";
             this.groupHolidaysList.Padding = new System.Windows.Forms.Padding(8);
-            this.groupHolidaysList.Size = new System.Drawing.Size(386, 518);
+            this.groupHolidaysList.Size = new System.Drawing.Size(386, 541);
             this.groupHolidaysList.TabIndex = 1;
             this.groupHolidaysList.TabStop = false;
             this.groupHolidaysList.Text = "DANH SÁCH CÁC NGÀY NGHỈ";
@@ -662,8 +580,134 @@ namespace OvertimeScheduler
             this.lstHolidays.ItemHeight = 17;
             this.lstHolidays.Location = new System.Drawing.Point(8, 24);
             this.lstHolidays.Name = "lstHolidays";
-            this.lstHolidays.Size = new System.Drawing.Size(370, 486);
+            this.lstHolidays.Size = new System.Drawing.Size(370, 509);
             this.lstHolidays.TabIndex = 0;
+
+            // 
+            // grpScheduleConfig
+            // 
+            this.grpScheduleConfig.Controls.Add(this.chkSaturdayWorking);
+            this.grpScheduleConfig.Controls.Add(this.lblMaxPerShift);
+            this.grpScheduleConfig.Controls.Add(this.numMaxPerShift);
+            this.grpScheduleConfig.Controls.Add(this.lblMonthlyBudget);
+            this.grpScheduleConfig.Controls.Add(this.numMonthlyBudget);
+            this.grpScheduleConfig.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.grpScheduleConfig.Location = new System.Drawing.Point(20, 20);
+            this.grpScheduleConfig.Name = "grpScheduleConfig";
+            this.grpScheduleConfig.Size = new System.Drawing.Size(300, 160);
+            this.grpScheduleConfig.TabIndex = 0;
+            this.grpScheduleConfig.TabStop = false;
+            this.grpScheduleConfig.Text = "Cấu hình thuật toán xếp ca";
+
+            // 
+            // chkSaturdayWorking
+            // 
+            this.chkSaturdayWorking.AutoSize = true;
+            this.chkSaturdayWorking.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.chkSaturdayWorking.Location = new System.Drawing.Point(15, 30);
+            this.chkSaturdayWorking.Name = "chkSaturdayWorking";
+            this.chkSaturdayWorking.Size = new System.Drawing.Size(130, 21);
+            this.chkSaturdayWorking.TabIndex = 0;
+            this.chkSaturdayWorking.Text = "Thứ 7 làm thường";
+            this.chkSaturdayWorking.UseVisualStyleBackColor = true;
+            this.chkSaturdayWorking.CheckedChanged += new System.EventHandler(this.chkSaturdayWorking_CheckedChanged);
+
+            // 
+            // lblMaxPerShift
+            // 
+            this.lblMaxPerShift.AutoSize = true;
+            this.lblMaxPerShift.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblMaxPerShift.Location = new System.Drawing.Point(12, 65);
+            this.lblMaxPerShift.Name = "lblMaxPerShift";
+            this.lblMaxPerShift.Size = new System.Drawing.Size(107, 17);
+            this.lblMaxPerShift.TabIndex = 1;
+            this.lblMaxPerShift.Text = "Số người tối đa/ca:";
+
+            // 
+            // numMaxPerShift
+            // 
+            this.numMaxPerShift.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.numMaxPerShift.Location = new System.Drawing.Point(160, 61);
+            this.numMaxPerShift.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            this.numMaxPerShift.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
+            this.numMaxPerShift.Name = "numMaxPerShift";
+            this.numMaxPerShift.Size = new System.Drawing.Size(60, 25);
+            this.numMaxPerShift.TabIndex = 2;
+            this.numMaxPerShift.Value = new decimal(new int[] { 2, 0, 0, 0 });
+            this.numMaxPerShift.ValueChanged += new System.EventHandler(this.numMaxPerShift_ValueChanged);
+
+            // 
+            // lblMonthlyBudget
+            // 
+            this.lblMonthlyBudget.AutoSize = true;
+            this.lblMonthlyBudget.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblMonthlyBudget.Location = new System.Drawing.Point(12, 105);
+            this.lblMonthlyBudget.Name = "lblMonthlyBudget";
+            this.lblMonthlyBudget.Size = new System.Drawing.Size(115, 17);
+            this.lblMonthlyBudget.TabIndex = 3;
+            this.lblMonthlyBudget.Text = "Quỹ 1 tháng (giờ):";
+
+            // 
+            // numMonthlyBudget
+            // 
+            this.numMonthlyBudget.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.numMonthlyBudget.Location = new System.Drawing.Point(160, 101);
+            this.numMonthlyBudget.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
+            this.numMonthlyBudget.Name = "numMonthlyBudget";
+            this.numMonthlyBudget.Size = new System.Drawing.Size(60, 25);
+            this.numMonthlyBudget.TabIndex = 4;
+            this.numMonthlyBudget.Value = new decimal(new int[] { 200, 0, 0, 0 });
+            this.numMonthlyBudget.ValueChanged += new System.EventHandler(this.numMonthlyBudget_ValueChanged);
+
+            // 
+            // grpZaloConfig
+            // 
+            this.grpZaloConfig.Controls.Add(this.lblZalo);
+            this.grpZaloConfig.Controls.Add(this.txtZaloGroupName);
+            this.grpZaloConfig.Controls.Add(this.btnToggleZalo);
+            this.grpZaloConfig.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.grpZaloConfig.Location = new System.Drawing.Point(340, 20);
+            this.grpZaloConfig.Name = "grpZaloConfig";
+            this.grpZaloConfig.Size = new System.Drawing.Size(300, 160);
+            this.grpZaloConfig.TabIndex = 1;
+            this.grpZaloConfig.TabStop = false;
+            this.grpZaloConfig.Text = "Cài đặt kết nối Zalo";
+
+            // 
+            // lblZalo
+            // 
+            this.lblZalo.AutoSize = true;
+            this.lblZalo.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblZalo.Location = new System.Drawing.Point(15, 35);
+            this.lblZalo.Name = "lblZalo";
+            this.lblZalo.Size = new System.Drawing.Size(135, 17);
+            this.lblZalo.TabIndex = 0;
+            this.lblZalo.Text = "Nhóm Zalo nhận lịch:";
+
+            // 
+            // txtZaloGroupName
+            // 
+            this.txtZaloGroupName.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.txtZaloGroupName.Location = new System.Drawing.Point(15, 55);
+            this.txtZaloGroupName.Name = "txtZaloGroupName";
+            this.txtZaloGroupName.Size = new System.Drawing.Size(260, 25);
+            this.txtZaloGroupName.TabIndex = 1;
+            this.txtZaloGroupName.Text = "Test Group";
+
+            // 
+            // btnToggleZalo
+            // 
+            this.btnToggleZalo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(104)))), ((int)(((byte)(156)))));
+            this.btnToggleZalo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnToggleZalo.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnToggleZalo.ForeColor = System.Drawing.Color.White;
+            this.btnToggleZalo.Location = new System.Drawing.Point(15, 95);
+            this.btnToggleZalo.Name = "btnToggleZalo";
+            this.btnToggleZalo.Size = new System.Drawing.Size(150, 30);
+            this.btnToggleZalo.TabIndex = 2;
+            this.btnToggleZalo.Text = "Bật Zalo Bot";
+            this.btnToggleZalo.UseVisualStyleBackColor = false;
+            this.btnToggleZalo.Click += new System.EventHandler(this.btnToggleZalo_Click);
 
             // 
             // Form1
@@ -683,8 +727,6 @@ namespace OvertimeScheduler
             this.Load += new System.EventHandler(this.Form1_Load);
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numMaxPerShift)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numMonthlyBudget)).EndInit();
             this.panelSidebar.ResumeLayout(false);
             this.groupSidebar.ResumeLayout(false);
             this.groupSidebar.PerformLayout();
@@ -693,6 +735,7 @@ namespace OvertimeScheduler
             this.tabPageSchedule.ResumeLayout(false);
             this.tabPageChart.ResumeLayout(false);
             this.tabPageHolidays.ResumeLayout(false);
+            this.tabPageSettings.ResumeLayout(false);
             this.tableLayoutPanelShifts.ResumeLayout(false);
             this.groupAdminShift.ResumeLayout(false);
             this.groupNightShift.ResumeLayout(false);
@@ -701,6 +744,12 @@ namespace OvertimeScheduler
             this.panelHolidayLeft.ResumeLayout(false);
             this.panelHolidayLeft.PerformLayout();
             this.groupHolidaysList.ResumeLayout(false);
+            this.grpScheduleConfig.ResumeLayout(false);
+            this.grpScheduleConfig.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numMaxPerShift)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numMonthlyBudget)).EndInit();
+            this.grpZaloConfig.ResumeLayout(false);
+            this.grpZaloConfig.PerformLayout();
             this.ResumeLayout(false);
         }
 
@@ -711,28 +760,24 @@ namespace OvertimeScheduler
         private System.Windows.Forms.DateTimePicker dtpFrom;
         private System.Windows.Forms.Label lblTo;
         private System.Windows.Forms.DateTimePicker dtpTo;
-        private System.Windows.Forms.CheckBox chkSaturdayWorking;
-        private System.Windows.Forms.Label lblMaxPerShift;
-        private System.Windows.Forms.NumericUpDown numMaxPerShift;
-        private System.Windows.Forms.Label lblMonthlyBudget;
-        private System.Windows.Forms.NumericUpDown numMonthlyBudget;
         private System.Windows.Forms.Label lblActiveDay;
         private System.Windows.Forms.ComboBox cbActiveDay;
         private System.Windows.Forms.Button btnAutoSchedule;
         private System.Windows.Forms.Button btnExportExcel;
         private System.Windows.Forms.Label lblBudgetStatus;
-        private System.Windows.Forms.Label lblZalo;
-        private System.Windows.Forms.TextBox txtZaloGroupName;
-        private System.Windows.Forms.Button btnToggleZalo;
+
         private System.Windows.Forms.Panel panelSidebar;
         private System.Windows.Forms.GroupBox groupSidebar;
         private System.Windows.Forms.TextBox txtSearch;
         private System.Windows.Forms.FlowLayoutPanel flowEmployeePool;
+
         private System.Windows.Forms.Panel panelMain;
         private System.Windows.Forms.TabControl tabControlMain;
         private System.Windows.Forms.TabPage tabPageSchedule;
         private System.Windows.Forms.TabPage tabPageChart;
         private System.Windows.Forms.TabPage tabPageHolidays;
+        private System.Windows.Forms.TabPage tabPageSettings;
+
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelShifts;
         private System.Windows.Forms.GroupBox groupDayShift;
         private System.Windows.Forms.FlowLayoutPanel flowDayShift;
@@ -751,5 +796,17 @@ namespace OvertimeScheduler
         private System.Windows.Forms.Button btnDeleteHoliday;
         private System.Windows.Forms.GroupBox groupHolidaysList;
         private System.Windows.Forms.ListBox lstHolidays;
+
+        private System.Windows.Forms.GroupBox grpScheduleConfig;
+        private System.Windows.Forms.CheckBox chkSaturdayWorking;
+        private System.Windows.Forms.Label lblMaxPerShift;
+        private System.Windows.Forms.NumericUpDown numMaxPerShift;
+        private System.Windows.Forms.Label lblMonthlyBudget;
+        private System.Windows.Forms.NumericUpDown numMonthlyBudget;
+
+        private System.Windows.Forms.GroupBox grpZaloConfig;
+        private System.Windows.Forms.Label lblZalo;
+        private System.Windows.Forms.TextBox txtZaloGroupName;
+        private System.Windows.Forms.Button btnToggleZalo;
     }
 }
