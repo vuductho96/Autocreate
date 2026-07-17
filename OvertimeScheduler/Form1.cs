@@ -34,12 +34,8 @@ namespace OvertimeScheduler
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            // Thêm các ngày nghỉ lễ mặc định của năm 2026 để làm mẫu trực quan
-            _companyHolidays.Add(new CompanyHoliday(new DateTime(2026, 1, 1), "Tết Dương Lịch"));
-            _companyHolidays.Add(new CompanyHoliday(new DateTime(2026, 4, 30), "Giải phóng Miền Nam"));
-            _companyHolidays.Add(new CompanyHoliday(new DateTime(2026, 5, 1), "Quốc tế Lao động"));
-            _companyHolidays.Add(new CompanyHoliday(new DateTime(2026, 9, 2), "Quốc khánh"));
-
+            // Tự động khởi tạo toàn bộ ngày nghỉ lễ & nghỉ định kỳ 2026 của công ty IRISO VN (màu hồng trên lịch)
+            InitializeIrisoHolidays2026();
             RefreshHolidaysUI();
 
             DateTime today = DateTime.Today;
@@ -52,6 +48,112 @@ namespace OvertimeScheduler
 
             InitDateComboBox();
             RunAutoSchedule();
+        }
+
+        private void InitializeIrisoHolidays2026()
+        {
+            _companyHolidays.Clear();
+            
+            DateTime start = new DateTime(2026, 1, 1);
+            DateTime end = new DateTime(2026, 12, 31);
+            
+            for (DateTime curr = start; curr <= end; curr = curr.AddDays(1))
+            {
+                bool isSunday = (curr.DayOfWeek == DayOfWeek.Sunday);
+                bool isSaturday = (curr.DayOfWeek == DayOfWeek.Saturday);
+                bool isOff = false;
+                string holidayName = "";
+
+                if (isSunday)
+                {
+                    isOff = true;
+                    holidayName = "Chủ Nhật";
+                }
+                else if (isSaturday)
+                {
+                    int day = curr.Day;
+                    if (curr.Month == 1)
+                    {
+                        if (day == 3)
+                        {
+                            isOff = true;
+                            holidayName = "Nghỉ Thứ Bảy (Lịch IRISO)";
+                        }
+                    }
+                    else
+                    {
+                        if (day <= 7)
+                        {
+                            // Thứ 7 đầu tiên của tháng 2-12 là ngày đi làm (màu trắng)
+                            isOff = false;
+                        }
+                        else
+                        {
+                            // Các Thứ 7 còn lại là ngày nghỉ (màu hồng)
+                            isOff = true;
+                            holidayName = "Nghỉ Thứ Bảy (Lịch IRISO)";
+                        }
+                    }
+                }
+
+                // Lễ đặc biệt và lịch nghỉ công ty bổ sung
+                int m = curr.Month;
+                int d = curr.Day;
+
+                if (m == 1 && d == 2)
+                {
+                    isOff = true;
+                    holidayName = "Nghỉ bù / Nghỉ thêm IRISO";
+                }
+                else if (m == 2 && (d >= 16 && d <= 20))
+                {
+                    isOff = true;
+                    holidayName = $"Tết Nguyên Đán (Mùng {d-15} Tết)";
+                }
+                else if (m == 4 && d == 29)
+                {
+                    isOff = true;
+                    holidayName = "Giỗ tổ Hùng Vương (Nghỉ lễ)";
+                }
+                else if (m == 4 && d == 30)
+                {
+                    isOff = true;
+                    holidayName = "Giải phóng Miền Nam";
+                }
+                else if (m == 5 && d == 1)
+                {
+                    isOff = true;
+                    holidayName = "Quốc tế Lao động";
+                }
+                else if (m == 9 && d == 1)
+                {
+                    isOff = true;
+                    holidayName = "Nghỉ Quốc khánh";
+                }
+                else if (m == 9 && d == 2)
+                {
+                    isOff = true;
+                    holidayName = "Quốc khánh";
+                }
+                else if (m == 12 && d == 30)
+                {
+                    isOff = true;
+                    holidayName = "Nghỉ tết sớm IRISO";
+                }
+                else if (m == 12 && d == 31)
+                {
+                    isOff = true;
+                    holidayName = "Nghỉ Tết Dương Lịch";
+                }
+
+                if (isOff)
+                {
+                    if (!_companyHolidays.Any(h => h.Date == curr.Date))
+                    {
+                        _companyHolidays.Add(new CompanyHoliday(curr, holidayName));
+                    }
+                }
+            }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -83,7 +185,7 @@ namespace OvertimeScheduler
             DateTime monday = GetMonday(dtpFrom.Value);
             var holidayDates = _companyHolidays.Select(h => h.Date).ToList();
 
-            // 1. Ngày thường: T2 - T5 (loại trừ các ngày lễ ra riêng)
+            // 1. Ngày thường: T2 - T6 (loại trừ các ngày lễ ra riêng)
             var weekdayList = new List<DateTime>();
             for (int i = 0; i < 5; i++)
             {

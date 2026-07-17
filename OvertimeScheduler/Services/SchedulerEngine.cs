@@ -152,7 +152,7 @@ namespace OvertimeScheduler.Services
         {
             if (holidays != null && holidays.Contains(date.Date))
             {
-                return date.Date; // Ngày lễ xếp riêng
+                return date.Date; // Ngày lễ hoặc ngày nghỉ IRISO xếp riêng
             }
             if (date.DayOfWeek == DayOfWeek.Sunday)
             {
@@ -160,8 +160,9 @@ namespace OvertimeScheduler.Services
             }
             if (date.DayOfWeek == DayOfWeek.Saturday)
             {
-                // Thứ 7 làm thường không tính tăng ca, trả về MinValue để bỏ qua
-                return saturdayWorking ? DateTime.MinValue : date.Date;
+                // Nếu Thứ 7 là ngày làm việc thường (không nằm trong danh sách nghỉ lễ/nghỉ IRISO)
+                // Hoặc nếu cấu hình luôn coi Thứ 7 làm thường (saturdayWorking = true)
+                return DateTime.MinValue; // Bỏ qua không tính tăng ca
             }
             return GetMonday(date);
         }
@@ -179,13 +180,13 @@ namespace OvertimeScheduler.Services
             {
                 if (keyDate >= fromDate && keyDate <= toDate) days.Add(keyDate);
             }
-            else if (keyDate.DayOfWeek == DayOfWeek.Saturday && !saturdayWorking)
+            else if (keyDate.DayOfWeek == DayOfWeek.Saturday)
             {
-                if (keyDate >= fromDate && keyDate <= toDate) days.Add(keyDate);
+                // Thứ 7 không phải ngày lễ (ngày nghỉ) thì không đại diện cho ngày nào (đã trả về MinValue ở GetScheduleKey)
             }
             else
             {
-                // Ngày thường: Thứ 2 đến Thứ 5/Thứ 6 loại trừ ngày lễ
+                // Ngày thường: Thứ 2 đến Thứ 6 loại trừ ngày lễ
                 DateTime monday = keyDate;
                 for (int i = 0; i < 5; i++)
                 {
