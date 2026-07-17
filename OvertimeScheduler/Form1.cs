@@ -20,6 +20,7 @@ namespace OvertimeScheduler
         private bool _saturdayWorking = false;
         private List<CompanyHoliday> _companyHolidays;
         private DateTime _currentCalendarMonth;
+        private Button[] _calendarButtons = new Button[42];
 
         public Form1()
         {
@@ -58,6 +59,27 @@ namespace OvertimeScheduler
                     BackColor = Color.FromArgb(230, 235, 240)
                 };
                 tblCalendar.Controls.Add(lbl, i, 0);
+            }
+
+            // Khởi tạo sẵn 42 buttons cho lịch để tái sử dụng (Tránh lag do tạo mới control liên tục)
+            for (int i = 0; i < 42; i++)
+            {
+                int col = i % 7;
+                int row = (i / 7) + 1;
+
+                var btn = new Button
+                {
+                    Dock = DockStyle.Fill,
+                    FlatStyle = FlatStyle.Flat,
+                    Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                    Margin = new Padding(2)
+                };
+                btn.FlatAppearance.BorderSize = 1;
+                btn.FlatAppearance.BorderColor = Color.FromArgb(224, 224, 224);
+                btn.Click += CalendarButton_Click;
+
+                _calendarButtons[i] = btn;
+                tblCalendar.Controls.Add(btn, col, row);
             }
             tblCalendar.ResumeLayout();
 
@@ -105,12 +127,10 @@ namespace OvertimeScheduler
                     {
                         if (day <= 7)
                         {
-                            // Thứ 7 đầu tiên của tháng 2-12 là ngày đi làm (màu trắng)
                             isOff = false;
                         }
                         else
                         {
-                            // Các Thứ 7 còn lại là ngày nghỉ (màu hồng)
                             isOff = true;
                             holidayName = "Nghỉ Thứ Bảy (Lịch IRISO)";
                         }
@@ -285,6 +305,12 @@ namespace OvertimeScheduler
             if (cbActiveDay.SelectedItem == null) return;
             DateTime activeDate = ((DateItem)cbActiveDay.SelectedItem).Date;
 
+            // Suspend layout để tối ưu hóa render hàng loạt control
+            flowEmployeePool.SuspendLayout();
+            flowDayShift.SuspendLayout();
+            flowNightShift.SuspendLayout();
+            flowAdminShift.SuspendLayout();
+
             flowEmployeePool.Controls.Clear();
             flowDayShift.Controls.Clear();
             flowNightShift.Controls.Clear();
@@ -325,7 +351,7 @@ namespace OvertimeScheduler
 
                 if (!assignedAllToday.Contains(emp.Id) && matchesSearch && !isOnLeave)
                 {
-                    // Lọc xoay ca: nếu là Operator (Worker/NewWorker) thì ẩn khỏi pool nếu tuần này thuộc ca 2 (Về ca)
+                    // Lọc xoay ca: nếu là Operator thì ẩn khỏi pool nếu tuần này thuộc ca 2 (Về ca)
                     if (emp.Role == EmployeeRole.Worker || emp.Role == EmployeeRole.NewWorker)
                     {
                         int rot = SchedulerEngine.GetShiftRotationForWeek(emp.Id, activeDate);
@@ -337,6 +363,11 @@ namespace OvertimeScheduler
                     if (poolCount >= 50) break;
                 }
             }
+
+            flowEmployeePool.ResumeLayout();
+            flowDayShift.ResumeLayout();
+            flowNightShift.ResumeLayout();
+            flowAdminShift.ResumeLayout();
 
             UpdateBudgetStatusAndChart();
         }
@@ -478,7 +509,7 @@ namespace OvertimeScheduler
                 btnDelete.Click += (s, ev) =>
                 {
                     DateTime activeDate = ((DateItem)cbActiveDay.SelectedItem).Date;
-                    emp.LeavePeriods.Add(new LeavePeriod(activeDate, activeDate));
+                    emp.LeavePeriods.Add(new LeavePeriod(activeDate, activeDate, "Báo nghỉ nhanh"));
                     Log("System", $"Nhân viên {emp.Name} báo nghỉ vào ngày {activeDate:dd/MM/yyyy}.");
                     
                     RunAutoSchedule();
@@ -729,7 +760,7 @@ namespace OvertimeScheduler
             {
                 if (!emp.LeavePeriods.Any(lp => request.date >= lp.StartDate && request.date <= lp.EndDate))
                 {
-                    emp.LeavePeriods.Add(new LeavePeriod(request.date, request.date));
+                    emp.LeavePeriods.Add(new LeavePeriod(request.date, request.date, "Báo nghỉ qua Zalo"));
                     Log("Zalo Bot", $"Tự động cập nhật nghỉ phép cho {emp.Name} vào ngày {request.date:dd/MM/yyyy}.");
 
                     RunAutoSchedule();
@@ -749,7 +780,7 @@ namespace OvertimeScheduler
         }
         #endregion
 
-        #region Quản lý Ngày lễ Công ty (Live Calendar)
+        #region Quản lý Ngày nghỉ Công ty (Live Calendar)
         private void btnPrevMonth_Click(object sender, EventArgs e)
         {
             _currentCalendarMonth = _currentCalendarMonth.AddMonths(-1);
@@ -762,45 +793,43 @@ namespace OvertimeScheduler
             RefreshHolidaysUI();
         }
 
+        private void CalendarButton_Click(object sender, EventArgs e)
+        {
+            var btn = (Button)sender;
+            if (btn.Tag is DateTime clickedDate)
+            {
+                var existing = _companyHolidays.FirstOrDefault(h => h.Date == clickedDate);
+                if (existing != null)
+                {
+                    _companyHolidays.Remove(existing);
+                }
+                else
+                {
+                    string name = clickedDate.DayOfWeek == DayOfWeek.Sunday ? "Chủ Nhật" : 
+                                  (clickedDate.DayOfWeek == DayOfWeek.Saturday ? "Nghỉ Thứ Bảy (Lịch IRISO)" : "Ngày nghỉ");
+                    _companyHolidays.Add(new CompanyHoliday(clickedDate, name));
+                }
+
+                RefreshHolidaysUI();
+                InitDateComboBox();
+                RunAutoSchedule();
+            }
+        }
+
         private void RefreshHolidaysUI()
         {
-            tblCalendar.SuspendLayout();
-
-            // Xóa tất cả các nút ngày cũ, giữ lại dòng tiêu đề 0
-            for (int i = tblCalendar.Controls.Count - 1; i >= 0; i--)
-            {
-                var ctrl = tblCalendar.Controls[i];
-                var pos = tblCalendar.GetPositionFromControl(ctrl);
-                if (pos.Row > 0)
-                {
-                    tblCalendar.Controls.Remove(ctrl);
-                    ctrl.Dispose();
-                }
-            }
-
             lblMonthYear.Text = $"Tháng {_currentCalendarMonth:MM - yyyy}";
 
             DateTime firstDay = new DateTime(_currentCalendarMonth.Year, _currentCalendarMonth.Month, 1);
             int startOffset = (int)firstDay.DayOfWeek;
-            int daysInMonth = DateTime.DaysInMonth(_currentCalendarMonth.Year, _currentCalendarMonth.Month);
 
+            tblCalendar.SuspendLayout();
             for (int i = 0; i < 42; i++)
             {
                 DateTime cellDate = firstDay.AddDays(i - startOffset);
-                int col = i % 7;
-                int row = (i / 7) + 1;
-
-                var btn = new Button
-                {
-                    Text = cellDate.Day.ToString(),
-                    Dock = DockStyle.Fill,
-                    FlatStyle = FlatStyle.Flat,
-                    Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                    Margin = new Padding(2),
-                    Tag = cellDate
-                };
-                btn.FlatAppearance.BorderSize = 1;
-                btn.FlatAppearance.BorderColor = Color.FromArgb(224, 224, 224);
+                var btn = _calendarButtons[i];
+                btn.Text = cellDate.Day.ToString();
+                btn.Tag = cellDate.Date;
 
                 // Màu chữ tùy thuộc vào ngày thuộc tháng hiện tại hay không
                 if (cellDate.Month != _currentCalendarMonth.Month)
@@ -823,30 +852,7 @@ namespace OvertimeScheduler
                 {
                     btn.BackColor = Color.White;
                 }
-
-                btn.Click += (s, ev) =>
-                {
-                    DateTime clickedDate = ((Button)s).Tag is DateTime dt ? dt.Date : cellDate.Date;
-                    var existing = _companyHolidays.FirstOrDefault(h => h.Date == clickedDate);
-                    if (existing != null)
-                    {
-                        _companyHolidays.Remove(existing);
-                    }
-                    else
-                    {
-                        string name = clickedDate.DayOfWeek == DayOfWeek.Sunday ? "Chủ Nhật" : 
-                                      (clickedDate.DayOfWeek == DayOfWeek.Saturday ? "Nghỉ Thứ Bảy (Lịch IRISO)" : "Ngày nghỉ");
-                        _companyHolidays.Add(new CompanyHoliday(clickedDate, name));
-                    }
-
-                    RefreshHolidaysUI();
-                    InitDateComboBox();
-                    RunAutoSchedule();
-                };
-
-                tblCalendar.Controls.Add(btn, col, row);
             }
-
             tblCalendar.ResumeLayout();
         }
         #endregion
