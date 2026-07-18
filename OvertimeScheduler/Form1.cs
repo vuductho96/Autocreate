@@ -661,16 +661,6 @@ namespace OvertimeScheduler
             var availableEmployees = _employees
                 .Where(emp => !assignedIds.Contains(emp.Id) &&
                               (!emp.LeavePeriods.Any(lp => activeDate >= lp.StartDate && activeDate <= lp.EndDate)))
-                .Where(emp =>
-                {
-                    if (emp.Role == EmployeeRole.Leader || emp.Role == EmployeeRole.Technician) return true;
-                    int rot = SchedulerEngine.GetShiftRotationForWeek(emp.Id, activeDate);
-                    if (shiftName == "Ngày") return rot == 0;
-                    if (shiftName == "Ca2") return rot == 2;
-                    if (shiftName == "Đêm") return rot == 1;
-                    if (shiftName == "Hành chính") return rot != 2;
-                    return true;
-                })
                 .ToList();
 
             using (var form = new OvertimeScheduler.Forms.SelectEmployeeForm(availableEmployees))
