@@ -103,7 +103,7 @@ namespace OvertimeScheduler.Services
 
             // 2. Ghi Headers ca trực (Toàn bộ chữ ĐEN)
             // CA 1 (Ngày) - Columns A-B (1-2)
-            ws.Cell(rHeader, 1).Value = "CA 1 (6:00~14:00)";
+            ws.Cell(rHeader, 1).Value = "CA 1 (6:00~18:00)";
             ws.Range(rHeader, 1, rHeader, 2).Merge();
             ws.Range(rHeader, 1, rHeader, 2).Style.Fill.BackgroundColor = XLColor.FromHtml("#00b0f0"); // Blue
             ws.Range(rHeader, 1, rHeader, 2).Style.Font.Bold = true;
@@ -117,7 +117,7 @@ namespace OvertimeScheduler.Services
             ws.Range(rHeader, 3, rHeader, 4).Style.Font.FontColor = XLColor.Black;
 
             // CA 3 (Đêm) - Columns E-F (5-6)
-            ws.Cell(rHeader, 5).Value = "CA 3 (22:00~6:00)";
+            ws.Cell(rHeader, 5).Value = "CA 3 (18:00~6:00)";
             ws.Range(rHeader, 5, rHeader, 6).Merge();
             ws.Range(rHeader, 5, rHeader, 6).Style.Fill.BackgroundColor = XLColor.FromHtml("#ffc000"); // Orange
             ws.Range(rHeader, 5, rHeader, 6).Style.Font.Bold = true;

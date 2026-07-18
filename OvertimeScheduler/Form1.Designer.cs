@@ -434,7 +434,7 @@ namespace OvertimeScheduler
             this.groupDayShift.Size = new System.Drawing.Size(163, 545);
             this.groupDayShift.TabIndex = 0;
             this.groupDayShift.TabStop = false;
-            this.groupDayShift.Text = "CA 1  (06:00 ~ 14:00)";
+            this.groupDayShift.Text = "CA 1  (06:00 ~ 18:00)";
 
             // 
             // flowDayShift
@@ -492,7 +492,7 @@ namespace OvertimeScheduler
             this.groupNightShift.Size = new System.Drawing.Size(163, 545);
             this.groupNightShift.TabIndex = 2;
             this.groupNightShift.TabStop = false;
-            this.groupNightShift.Text = "CA 3  (22:00 ~ 06:00)";
+            this.groupNightShift.Text = "CA 3  (18:00 ~ 06:00)";
 
             // 
             // flowNightShift
