@@ -391,40 +391,19 @@ namespace OvertimeScheduler
                 cbActiveDay.Items.Add(new DateItem(monday, $"Ngày Thường ({dayNameRange}: {dayRangeStr})"));
             }
 
-            // 2. Thứ 7
-            DateTime saturday = monday.AddDays(5);
-            if (saturday >= fromDate && saturday <= toDate)
+            // 2. Ngày nghỉ đỏ (Thứ Bảy, Chủ Nhật, Ngày Lễ...) trong khoảng [fromDate, toDate]
+            // Sắp xếp theo thứ tự thời gian tăng dần
+            for (DateTime d = fromDate; d <= toDate; d = d.AddDays(1))
             {
-                if (holidayDates.Contains(saturday))
-                {
-                    var h = _companyHolidays.First(x => x.Date == saturday);
-                    cbActiveDay.Items.Add(new DateItem(saturday, $"Thứ Bảy (Tăng ca: {saturday:dd/MM})"));
-                }
-            }
-
-            // 3. Chủ Nhật
-            DateTime sunday = monday.AddDays(6);
-            if (sunday >= fromDate && sunday <= toDate)
-            {
-                if (holidayDates.Contains(sunday))
-                {
-                    var h = _companyHolidays.First(x => x.Date == sunday);
-                    cbActiveDay.Items.Add(new DateItem(sunday, $"Ngày Lễ ({h.Name}: {sunday:dd/MM})"));
-                }
-                else
-                {
-                    cbActiveDay.Items.Add(new DateItem(sunday, $"Chủ Nhật (Tăng ca: {sunday:dd/MM})"));
-                }
-            }
-
-            // 4. Các ngày lễ khác trong tuần
-            for (int i = 0; i < 5; i++)
-            {
-                DateTime d = monday.AddDays(i);
-                if (d >= fromDate && d <= toDate && holidayDates.Contains(d))
+                if (holidayDates.Contains(d))
                 {
                     var h = _companyHolidays.First(x => x.Date == d);
-                    cbActiveDay.Items.Add(new DateItem(d, $"Ngày Lễ ({h.Name}: {d:dd/MM})"));
+                    string labelName = h.Name;
+                    if (labelName == "Chủ Nhật" || labelName == "Nghỉ Thứ Bảy (Lịch IRISO)")
+                    {
+                        labelName = GetVietnameseDayName(d.DayOfWeek);
+                    }
+                    cbActiveDay.Items.Add(new DateItem(d, $"Ngày Nghỉ ({labelName}: {d:dd/MM})"));
                 }
             }
 

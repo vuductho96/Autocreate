@@ -55,35 +55,16 @@ namespace OvertimeScheduler.Services
                     WriteDayBlock(worksheet, ref currentRow, weekdayTitle, monday, employees, schedule, fromDate, toDate, saturdayWorking, holidays);
                 }
 
-                // 2. Tạo khối Thứ 7
-                DateTime saturday = monday.AddDays(5);
-                if (saturday >= fromDate.Date && saturday <= toDate.Date && !saturdayWorking)
+                // 2. Tạo các khối Ngày nghỉ đỏ (Thứ Bảy, Chủ Nhật, Ngày Lễ...) trong khoảng [fromDate, toDate] theo trình tự thời gian
+                for (DateTime d = fromDate.Date; d <= toDate.Date; d = d.AddDays(1))
                 {
-                    currentRow += 2;
-                    string satTitle = $"LỊCH TĂNG CA  NGÀY {saturday:dd/M/yyyy}";
-                    WriteDayBlock(worksheet, ref currentRow, satTitle, saturday, employees, schedule, fromDate, toDate, saturdayWorking, holidays);
-                }
-
-                // 3. Tạo khối Chủ Nhật
-                DateTime sunday = monday.AddDays(6);
-                if (sunday >= fromDate.Date && sunday <= toDate.Date)
-                {
-                    currentRow += 2;
-                    string sunTitle = $"LỊCH TĂNG CA  NGÀY {sunday:dd/M/yyyy}";
-                    WriteDayBlock(worksheet, ref currentRow, sunTitle, sunday, employees, schedule, fromDate, toDate, saturdayWorking, holidays);
-                }
-
-                // 4. Tạo các khối Ngày lễ công ty trong tuần (nếu có)
-                if (holidays != null)
-                {
-                    foreach (var hDate in holidays.Where(h => h >= fromDate.Date && h <= toDate.Date).OrderBy(h => h))
+                    if (holidays != null && holidays.Contains(d))
                     {
-                        if (hDate.DayOfWeek == DayOfWeek.Sunday) continue;
-                        if (hDate.DayOfWeek == DayOfWeek.Saturday && !saturdayWorking) continue;
+                        if (d.DayOfWeek == DayOfWeek.Saturday && saturdayWorking) continue;
 
                         currentRow += 2;
-                        string holidayTitle = $"LỊCH TĂNG CA LỄ  NGÀY {hDate:dd/M/yyyy}";
-                        WriteDayBlock(worksheet, ref currentRow, holidayTitle, hDate, employees, schedule, fromDate, toDate, saturdayWorking, holidays);
+                        string holidayTitle = $"LỊCH TĂNG CA  NGÀY {d:dd/M/yyyy}";
+                        WriteDayBlock(worksheet, ref currentRow, holidayTitle, d, employees, schedule, fromDate, toDate, saturdayWorking, holidays);
                     }
                 }
 
