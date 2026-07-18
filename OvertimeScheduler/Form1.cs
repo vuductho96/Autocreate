@@ -445,12 +445,7 @@ namespace OvertimeScheduler
 
                 if (!assignedAllToday.Contains(emp.Id) && matchesSearch && !isOnLeave)
                 {
-                    // Lọc xoay ca: nếu là Operator thì ẩn khỏi pool nếu tuần này thuộc ca 2 (Về ca)
-                    if (emp.Role == EmployeeRole.Worker || emp.Role == EmployeeRole.NewWorker)
-                    {
-                        int rot = SchedulerEngine.GetShiftRotationForWeek(emp.Id, activeDate);
-                        if (rot == 2) continue; // Ca 2 không đi làm thêm/overtime
-                    }
+
 
                     flowEmployeePool.Controls.Add(CreateEmployeeCard(emp, "Pool", null));
                     poolCount++;
@@ -460,7 +455,7 @@ namespace OvertimeScheduler
 
             // Append manual add buttons
             AddManualAddButton(flowDayShift, "Ngày");
-            AddManualAddButton(flowCa2Shift, "Ca 2");
+            AddManualAddButton(flowCa2Shift, "Ca2");
             AddManualAddButton(flowNightShift, "Đêm");
             AddManualAddButton(flowAdminShift, "Hành chính");
 
@@ -554,10 +549,23 @@ namespace OvertimeScheduler
                 FlatStyle = FlatStyle.Flat,
                 Margin = new Padding(3, 3, 3, 5),
                 Cursor = Cursors.Hand,
-                Tag = shiftName
+                Tag = shiftName,
+                BackColor = flowPanel.BackColor
             };
             btnAdd.FlatAppearance.BorderSize = 0;
             btnAdd.Click += BtnAddEmployee_Click;
+
+            // Draw dashed border
+            btnAdd.Paint += (s, pe) =>
+            {
+                pe.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                using (Pen pen = new Pen(Color.FromArgb(180, 180, 180), 1.5F))
+                {
+                    pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+                    pe.Graphics.DrawRectangle(pen, 0, 0, btnAdd.Width - 1, btnAdd.Height - 1);
+                }
+            };
+
             flowPanel.Controls.Add(btnAdd);
         }
 
@@ -572,7 +580,7 @@ namespace OvertimeScheduler
 
             var assignedIds = new HashSet<string>();
             var entryDay = _schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Ngày");
-            var entryCa2 = _schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Ca 2");
+            var entryCa2 = _schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Ca2");
             var entryNight = _schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Đêm");
             var entryAdmin = _schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Hành chính");
 
@@ -584,6 +592,16 @@ namespace OvertimeScheduler
             var availableEmployees = _employees
                 .Where(emp => !assignedIds.Contains(emp.Id) &&
                               (!emp.LeavePeriods.Any(lp => activeDate >= lp.StartDate && activeDate <= lp.EndDate)))
+                .Where(emp =>
+                {
+                    if (emp.Role == EmployeeRole.Leader || emp.Role == EmployeeRole.Technician) return true;
+                    int rot = SchedulerEngine.GetShiftRotationForWeek(emp.Id, activeDate);
+                    if (shiftName == "Ngày") return rot == 0;
+                    if (shiftName == "Ca2") return rot == 2;
+                    if (shiftName == "Đêm") return rot == 1;
+                    if (shiftName == "Hành chính") return rot != 2;
+                    return true;
+                })
                 .ToList();
 
             using (var form = new OvertimeScheduler.Forms.SelectEmployeeForm(availableEmployees))
@@ -610,26 +628,28 @@ namespace OvertimeScheduler
             var cardPanel = new Panel
             {
                 Size = new Size(245, isOnLeave ? 45 : 30),
-                BorderStyle = BorderStyle.FixedSingle,
+                BorderStyle = BorderStyle.None,
                 Margin = new Padding(3, 3, 3, 5),
                 Tag = emp.Id
             };
 
+            Color backColor;
             if (isOnLeave)
             {
-                cardPanel.BackColor = Color.FromArgb(255, 243, 205);
+                backColor = Color.FromArgb(255, 243, 205);
             }
             else
             {
                 switch (emp.Role)
                 {
-                    case EmployeeRole.Leader: cardPanel.BackColor = Color.LightSkyBlue; break;
-                    case EmployeeRole.Technician: cardPanel.BackColor = Color.FromArgb(40, 40, 40); break;
-                    case EmployeeRole.NewWorker: cardPanel.BackColor = Color.FromArgb(230, 70, 70); break;
+                    case EmployeeRole.Leader: backColor = Color.LightSkyBlue; break;
+                    case EmployeeRole.Technician: backColor = Color.FromArgb(40, 40, 40); break;
+                    case EmployeeRole.NewWorker: backColor = Color.FromArgb(230, 70, 70); break;
                     case EmployeeRole.Worker:
-                    default: cardPanel.BackColor = Color.White; break;
+                    default: backColor = Color.White; break;
                 }
             }
+            cardPanel.BackColor = backColor;
 
             Color textColor = isOnLeave ? Color.FromArgb(130, 80, 0)
                 : (emp.Role == EmployeeRole.Technician || emp.Role == EmployeeRole.NewWorker) ? Color.White : Color.Black;
@@ -641,7 +661,8 @@ namespace OvertimeScheduler
                 Text = cardText,
                 Font = new Font("Segoe UI", 8.5F, isOnLeave ? FontStyle.Bold : FontStyle.Regular),
                 ForeColor = textColor,
-                Location = new Point(5, 5),
+                Location = new Point(8, 6),
+                BackColor = Color.Transparent,
                 AutoSize = true
             };
             cardPanel.Controls.Add(lblName);
@@ -653,12 +674,40 @@ namespace OvertimeScheduler
                     Text = $"📋 {leave.Note}",
                     Font = new Font("Segoe UI", 7.5F, FontStyle.Regular),
                     ForeColor = Color.FromArgb(100, 60, 0),
-                    Location = new Point(5, 22),
+                    Location = new Point(8, 24),
+                    BackColor = Color.Transparent,
                     AutoSize = true,
                     Padding = new Padding(0)
                 };
                 cardPanel.Controls.Add(lblNote);
             }
+
+            // Custom paint rounded border
+            cardPanel.Paint += (s, pe) =>
+            {
+                pe.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                int radius = 8;
+                using (var path = new System.Drawing.Drawing2D.GraphicsPath())
+                {
+                    path.AddArc(0, 0, radius, radius, 180, 90);
+                    path.AddArc(cardPanel.Width - radius - 1, 0, radius, radius, 270, 90);
+                    path.AddArc(cardPanel.Width - radius - 1, cardPanel.Height - radius - 1, radius, radius, 0, 90);
+                    path.AddArc(0, cardPanel.Height - radius - 1, radius, radius, 90, 90);
+                    path.CloseAllFigures();
+
+                    Color borderColor = (emp.Role == EmployeeRole.Technician && !isOnLeave) 
+                        ? Color.FromArgb(60, 60, 60) 
+                        : Color.FromArgb(200, 200, 200);
+                    using (var pen = new Pen(borderColor, 1F))
+                    {
+                        pe.Graphics.DrawPath(pen, path);
+                    }
+                }
+            };
+
+            // Set region to clip background to round path
+            cardPanel.SizeChanged += (s, ev) => UpdatePanelRegion(cardPanel);
+            UpdatePanelRegion(cardPanel);
 
             if (!isOnLeave)
             {
@@ -710,6 +759,18 @@ namespace OvertimeScheduler
             lblName.DoubleClick += (s, ev) => CardPanel_DoubleClick(cardPanel, ev);
 
             return cardPanel;
+        }
+
+        private void UpdatePanelRegion(Panel p)
+        {
+            int radius = 8;
+            var path = new System.Drawing.Drawing2D.GraphicsPath();
+            path.AddArc(0, 0, radius, radius, 180, 90);
+            path.AddArc(p.Width - radius, 0, radius, radius, 270, 90);
+            path.AddArc(p.Width - radius, p.Height - radius, radius, radius, 0, 90);
+            path.AddArc(0, p.Height - radius, radius, radius, 90, 90);
+            path.CloseAllFigures();
+            p.Region = new Region(path);
         }
 
         private void CardPanel_DoubleClick(object sender, EventArgs e)
@@ -866,19 +927,24 @@ namespace OvertimeScheduler
             if (emp != null && (emp.Role == EmployeeRole.Worker || emp.Role == EmployeeRole.NewWorker))
             {
                 int rot = SchedulerEngine.GetShiftRotationForWeek(emp.Id, activeDate);
-                if (rot == 2)
+                if (targetShift == "Ca2" && rot != 2)
                 {
-                    MessageBox.Show($"Nhân viên {emp.Name} đang trong tuần 'về ca' ở ca 2, không xếp lịch tăng ca được!", "Lưu ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show($"Nhân viên {emp.Name} không trong tuần 'về ca' ở ca 2, không xếp vào ca 2 được!", "Lưu ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
                 if (targetShift == "Ngày" && rot != 0)
                 {
-                    MessageBox.Show($"Nhân viên {emp.Name} đang trong tuần làm ca đêm (ca 3), không xếp vào ca ngày được!", "Lưu ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show($"Nhân viên {emp.Name} đang trong tuần làm ca đêm (ca 3) hoặc ca 2, không xếp vào ca ngày được!", "Lưu ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
                 if (targetShift == "Đêm" && rot != 1)
                 {
-                    MessageBox.Show($"Nhân viên {emp.Name} đang trong tuần làm ca ngày (ca 1), không xếp vào ca đêm được!", "Lưu ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show($"Nhân viên {emp.Name} đang trong tuần làm ca ngày (ca 1) hoặc ca 2, không xếp vào ca đêm được!", "Lưu ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (targetShift == "Hành chính" && rot == 2)
+                {
+                    MessageBox.Show($"Nhân viên {emp.Name} đang trong tuần 'về ca' ở ca 2, không xếp vào ca hành chính được!", "Lưu ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
             }

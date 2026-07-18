@@ -139,17 +139,11 @@ namespace OvertimeScheduler.Services
             // 3. Lấy dữ liệu nhân sự xếp vào các ca
             DateTime keyDate = GetScheduleKey(queryDate, saturdayWorking, holidays);
             var dayIds = schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Ngày")?.EmployeeIds ?? new List<string>();
+            var ca2Ids = schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Ca2")?.EmployeeIds ?? new List<string>();
             var nightIds = schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Đêm")?.EmployeeIds ?? new List<string>();
             var adminIds = schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Hành chính")?.EmployeeIds ?? new List<string>();
 
-            // Lấy danh sách nhân viên xoay ca về Ca 2 cho tuần này
-            var ca2Employees = employees
-                .Where(e => (e.Role == EmployeeRole.Worker || e.Role == EmployeeRole.NewWorker) 
-                            && SchedulerEngine.GetShiftRotationForWeek(e.Id, queryDate) == 2)
-                .OrderBy(e => e.Id)
-                .ToList();
-
-            int maxRows = Math.Max(dayIds.Count, Math.Max(nightIds.Count, Math.Max(adminIds.Count, ca2Employees.Count)));
+            int maxRows = Math.Max(dayIds.Count, Math.Max(nightIds.Count, Math.Max(adminIds.Count, ca2Ids.Count)));
             if (maxRows == 0) maxRows = 1; // Tạo ít nhất 1 dòng trống để kéo lưới
 
             for (int i = 0; i < maxRows; i++)
@@ -168,11 +162,14 @@ namespace OvertimeScheduler.Services
                 }
 
                 // CA 2 (Về ca)
-                if (i < ca2Employees.Count)
+                if (i < ca2Ids.Count)
                 {
-                    var emp = ca2Employees[i];
-                    ws.Cell(r, 3).Value = emp.Id;
-                    ws.Cell(r, 4).Value = FormatEmployeeNameExcel(emp, queryDate);
+                    var emp = employees.FirstOrDefault(e => e.Id == ca2Ids[i]);
+                    if (emp != null)
+                    {
+                        ws.Cell(r, 3).Value = emp.Id;
+                        ws.Cell(r, 4).Value = FormatEmployeeNameExcel(emp, queryDate);
+                    }
                 }
 
                 // CA 3 (Đêm)

@@ -79,6 +79,7 @@ namespace OvertimeScheduler.Services
             foreach (var date in keyDates)
             {
                 var dayEntry = new ScheduleEntry(date, "Ngày");
+                var ca2Entry = new ScheduleEntry(date, "Ca2");
                 var nightEntry = new ScheduleEntry(date, "Đêm");
                 var adminEntry = new ScheduleEntry(date, "Hành chính");
 
@@ -138,6 +139,18 @@ namespace OvertimeScheduler.Services
                     return null;
                 }
 
+                // Ca 2: Điền tất cả nhân viên xoay ca về Ca 2
+                var ca2Employees = availableToday
+                    .Where(e => (e.Role == EmployeeRole.Worker || e.Role == EmployeeRole.NewWorker) 
+                                && GetShiftRotationForWeek(e.Id, date) == 2)
+                    .Select(e => e.Id)
+                    .ToList();
+                ca2Entry.EmployeeIds.AddRange(ca2Employees);
+                foreach (var empId in ca2Employees)
+                {
+                    pickedToday.Add(empId);
+                }
+
                 // Ca Ngày: lọc chỉ lấy Leader, Tech, hoặc Operator xoay ca == 0 (Ca 1/Ngày)
                 var poolDay = availableToday.Where(e => 
                     e.Role == EmployeeRole.Leader || 
@@ -182,6 +195,7 @@ namespace OvertimeScheduler.Services
                 }
 
                 schedule.Add(dayEntry);
+                schedule.Add(ca2Entry);
                 schedule.Add(nightEntry);
                 schedule.Add(adminEntry);
             }
