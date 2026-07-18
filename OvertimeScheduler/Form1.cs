@@ -1128,6 +1128,15 @@ namespace OvertimeScheduler
 
             // Kiểm tra phân ca xoay ca 2 tuần ngày, 2 tuần đêm
             var emp = _employees.FirstOrDefault(x => x.Id == employeeId);
+            if (emp != null)
+            {
+                if (emp.LeavePeriods.Any(lp => activeDate >= lp.StartDate && activeDate <= lp.EndDate))
+                {
+                    MessageBox.Show($"Nhân viên {emp.Name} đang đăng ký nghỉ phép ngày hôm nay, không thể xếp ca!", "Lưu ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+
             if (emp != null && (emp.Role == EmployeeRole.Worker || emp.Role == EmployeeRole.NewWorker))
             {
                 int rot = SchedulerEngine.GetShiftRotationForWeek(emp.Id, activeDate);
