@@ -716,6 +716,7 @@ namespace OvertimeScheduler
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Auto Overtime Scheduler - Xếp lịch tăng ca tự động";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.panelTop.ResumeLayout(false);
@@ -732,6 +733,7 @@ namespace OvertimeScheduler
             this.tableLayoutPanelShifts.ResumeLayout(false);
             this.groupAdminShift.ResumeLayout(false);
             this.groupNightShift.ResumeLayout(false);
+            this.groupCa2Shift.ResumeLayout(false);
             this.groupDayShift.ResumeLayout(false);
             this.panelCalendarContainer.ResumeLayout(false);
             this.panelHolidayHeader.ResumeLayout(false);
