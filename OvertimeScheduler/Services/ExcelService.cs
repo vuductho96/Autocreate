@@ -103,7 +103,7 @@ namespace OvertimeScheduler.Services
 
             // 2. Ghi Headers ca trực (Toàn bộ chữ ĐEN)
             // CA 1 (Ngày) - Columns A-B (1-2)
-            ws.Cell(rHeader, 1).Value = "CA 1 (6:00~18:00)";
+            ws.Cell(rHeader, 1).Value = "CA 1 (6:00~14:00)";
             ws.Range(rHeader, 1, rHeader, 2).Merge();
             ws.Range(rHeader, 1, rHeader, 2).Style.Fill.BackgroundColor = XLColor.FromHtml("#00b0f0"); // Blue
             ws.Range(rHeader, 1, rHeader, 2).Style.Font.Bold = true;
@@ -117,7 +117,7 @@ namespace OvertimeScheduler.Services
             ws.Range(rHeader, 3, rHeader, 4).Style.Font.FontColor = XLColor.Black;
 
             // CA 3 (Đêm) - Columns E-F (5-6)
-            ws.Cell(rHeader, 5).Value = "CA 3 (18:00~6:00)";
+            ws.Cell(rHeader, 5).Value = "CA 3 (22:00~6:00)";
             ws.Range(rHeader, 5, rHeader, 6).Merge();
             ws.Range(rHeader, 5, rHeader, 6).Style.Fill.BackgroundColor = XLColor.FromHtml("#ffc000"); // Orange
             ws.Range(rHeader, 5, rHeader, 6).Style.Font.Bold = true;
@@ -157,7 +157,7 @@ namespace OvertimeScheduler.Services
                     if (emp != null)
                     {
                         ws.Cell(r, 1).Value = emp.Id;
-                        ws.Cell(r, 2).Value = FormatEmployeeNameExcel(emp, queryDate);
+                        ws.Cell(r, 2).Value = FormatEmployeeNameExcel(emp, queryDate, "Ngày", holidays);
                     }
                 }
 
@@ -168,7 +168,7 @@ namespace OvertimeScheduler.Services
                     if (emp != null)
                     {
                         ws.Cell(r, 3).Value = emp.Id;
-                        ws.Cell(r, 4).Value = FormatEmployeeNameExcel(emp, queryDate);
+                        ws.Cell(r, 4).Value = FormatEmployeeNameExcel(emp, queryDate, "Ca2", holidays);
                     }
                 }
 
@@ -179,7 +179,7 @@ namespace OvertimeScheduler.Services
                     if (emp != null)
                     {
                         ws.Cell(r, 5).Value = emp.Id;
-                        ws.Cell(r, 6).Value = FormatEmployeeNameExcel(emp, queryDate);
+                        ws.Cell(r, 6).Value = FormatEmployeeNameExcel(emp, queryDate, "Đêm", holidays);
                     }
                 }
 
@@ -190,7 +190,7 @@ namespace OvertimeScheduler.Services
                     if (emp != null)
                     {
                         ws.Cell(r, 7).Value = emp.Id;
-                        ws.Cell(r, 8).Value = FormatEmployeeNameExcel(emp, queryDate);
+                        ws.Cell(r, 8).Value = FormatEmployeeNameExcel(emp, queryDate, "Hành chính", holidays);
                     }
                 }
 
@@ -210,7 +210,7 @@ namespace OvertimeScheduler.Services
             startRow = rDataStart + maxRows - 1;
         }
 
-        private static string FormatEmployeeNameExcel(Employee emp, DateTime date)
+        private static string FormatEmployeeNameExcel(Employee emp, DateTime date, string shiftName, List<DateTime> holidays)
         {
             DateTime blockStart = date.Date;
             DateTime blockEnd = date.Date;
@@ -233,12 +233,61 @@ namespace OvertimeScheduler.Services
                 noteStr = " (" + string.Join(", ", notes) + ")";
             }
 
-            if (emp.FixedOvertimeHours.ContainsKey(date))
+            string otNote = GetEmployeeOvertimeNote(emp, date, shiftName, holidays);
+            return $"{emp.Name.ToUpper()}{otNote}{noteStr}";
+        }
+
+        private static string GetEmployeeOvertimeNote(Employee emp, DateTime activeDate, string location, List<DateTime> holidays)
+        {
+            if (location != "Ngày" && location != "Đêm") return "";
+
+            bool isWeekendOrHoliday = activeDate.DayOfWeek == DayOfWeek.Saturday || 
+                                     activeDate.DayOfWeek == DayOfWeek.Sunday || 
+                                     (holidays != null && holidays.Any(h => h.Date == activeDate.Date));
+
+            double otHours = 0;
+            if (emp.FixedOvertimeHours.ContainsKey(activeDate))
             {
-                double hours = emp.FixedOvertimeHours[date];
-                return $"{emp.Name.ToUpper()} {hours}h{noteStr}";
+                otHours = emp.FixedOvertimeHours[activeDate];
             }
-            return $"{emp.Name.ToUpper()}{noteStr}";
+            else
+            {
+                otHours = isWeekendOrHoliday ? 12.0 : 4.0; // default
+            }
+
+            if (otHours <= 0) return "";
+
+            if (!isWeekendOrHoliday)
+            {
+                if (location == "Ngày")
+                {
+                    int endTime = 14 + (int)Math.Round(otHours);
+                    return $" ({endTime}h)";
+                }
+                else if (location == "Đêm")
+                {
+                    int startTime = 22 - (int)Math.Round(otHours);
+                    if (startTime < 0) startTime += 24;
+                    return $" ({startTime}h-6h)";
+                }
+            }
+            else
+            {
+                if (location == "Ngày")
+                {
+                    int endTime = 6 + (int)Math.Round(otHours);
+                    if (endTime > 24) endTime -= 24;
+                    return $" ({endTime}h)";
+                }
+                else if (location == "Đêm")
+                {
+                    int startTime = 6 - (int)Math.Round(otHours);
+                    while (startTime <= 0) startTime += 24;
+                    return $" ({startTime}h-6h)";
+                }
+            }
+
+            return "";
         }
 
         private static DateTime GetMonday(DateTime date)

@@ -861,8 +861,8 @@ namespace OvertimeScheduler
                 {
                     btnDelete.Click += (s, ev) =>
                     {
-                        DateTime activeDate = ((DateItem)cbActiveDay.SelectedItem).Date;
-                        DateTime keyDate = GetScheduleKey(activeDate);
+                        DateTime actDate = ((DateItem)cbActiveDay.SelectedItem).Date;
+                        DateTime keyDate = GetScheduleKey(actDate);
                         var entry = _schedule.FirstOrDefault(se => se.Date == keyDate && se.ShiftName == location);
                         if (entry != null)
                         {
@@ -885,6 +885,67 @@ namespace OvertimeScheduler
             lblName.DoubleClick += (s, ev) => CardPanel_DoubleClick(cardPanel, ev);
 
             return cardPanel;
+        }
+
+        private string GetEmployeeOvertimeNote(Employee emp, DateTime activeDate, string location)
+        {
+            if (location != "Ngày" && location != "Đêm") return "";
+
+            bool isWeekendOrHoliday = activeDate.DayOfWeek == DayOfWeek.Saturday || 
+                                     activeDate.DayOfWeek == DayOfWeek.Sunday || 
+                                     _companyHolidays.Any(h => h.Date == activeDate.Date);
+
+            double otHours = 0;
+            if (emp.FixedOvertimeHours.ContainsKey(activeDate))
+            {
+                otHours = emp.FixedOvertimeHours[activeDate];
+            }
+            else
+            {
+                // check if scheduled today
+                DateTime keyDate = GetScheduleKey(activeDate);
+                var entry = _schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == location);
+                if (entry != null && entry.EmployeeIds.Contains(emp.Id))
+                {
+                    otHours = isWeekendOrHoliday ? 12.0 : 4.0; // default
+                }
+            }
+
+            if (otHours <= 0) return "";
+
+            if (!isWeekendOrHoliday)
+            {
+                // Weekday: otHours is extra hours (e.g. 3h, 4h)
+                if (location == "Ngày")
+                {
+                    int endTime = 14 + (int)Math.Round(otHours);
+                    return $" ({endTime}h)";
+                }
+                else if (location == "Đêm")
+                {
+                    int startTime = 22 - (int)Math.Round(otHours);
+                    if (startTime < 0) startTime += 24;
+                    return $" ({startTime}h-6h)";
+                }
+            }
+            else
+            {
+                // Weekend: otHours is total hours (e.g. 8h, 12h)
+                if (location == "Ngày")
+                {
+                    int endTime = 6 + (int)Math.Round(otHours);
+                    if (endTime > 24) endTime -= 24;
+                    return $" ({endTime}h)";
+                }
+                else if (location == "Đêm")
+                {
+                    int startTime = 6 - (int)Math.Round(otHours);
+                    while (startTime <= 0) startTime += 24;
+                    return $" ({startTime}h-6h)";
+                }
+            }
+
+            return "";
         }
 
         private void UpdatePanelRegion(Panel p)
