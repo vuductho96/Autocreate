@@ -628,8 +628,8 @@ namespace OvertimeScheduler
             double weekdayRemaining = weekdayBudget - weekdayScheduled;
             double weekendRemaining = weekendBudget - weekendScheduled;
 
-            lblBudgetStatus.Text = $"Đã xếp: {totalScheduled:0} giờ (Ngày thường: {weekdayScheduled:0}/{weekdayBudget:0}h | Ngày nghỉ: {weekendScheduled:0}/{weekendBudget:0}h) | Còn lại: Ngày thường: {weekdayRemaining:0}h, Ngày nghỉ: {weekendRemaining:0}h";
-            if (weekdayRemaining < 0 || weekendRemaining < 0)
+            lblBudgetStatus.Text = $"Đã xếp: Ngày thường: {weekdayScheduled:0}/{weekdayBudget:0}h | Ngày nghỉ: {weekendScheduled:0}/{weekendBudget:0}h";
+            if (weekdayScheduled > weekdayBudget || weekendScheduled > weekendBudget)
             {
                 lblBudgetStatus.ForeColor = Color.Red;
             }
