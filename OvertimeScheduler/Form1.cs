@@ -77,12 +77,11 @@ namespace OvertimeScheduler
                 {
                     Dock = DockStyle.Fill,
                     FlatStyle = FlatStyle.Flat,
-                    Font = new Font("Segoe UI", 10F, FontStyle.Bold),
                     Margin = new Padding(2)
                 };
-                btn.FlatAppearance.BorderSize = 1;
-                btn.FlatAppearance.BorderColor = Color.FromArgb(224, 224, 224);
+                btn.FlatAppearance.BorderSize = 0;
                 btn.Click += CalendarButton_Click;
+                btn.Paint += CalendarButton_Paint;
 
                 _calendarButtons[i] = btn;
                 tblCalendar.Controls.Add(btn, col, row);
@@ -1241,6 +1240,67 @@ namespace OvertimeScheduler
             // (Muốn chỉnh sửa lịch nghỉ thì liên hệ quản lý)
         }
 
+        private void CalendarButton_Paint(object sender, PaintEventArgs pe)
+        {
+            var btn = (Button)sender;
+            pe.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+            if (btn.Tag is DateTime cellDate)
+            {
+                // Draw background
+                using (var brush = new SolidBrush(btn.BackColor))
+                {
+                    pe.Graphics.FillRectangle(brush, btn.ClientRectangle);
+                }
+
+                // Draw cell border
+                using (var pen = new Pen(Color.FromArgb(224, 224, 224), 1F))
+                {
+                    pe.Graphics.DrawRectangle(pen, 0, 0, btn.Width - 1, btn.Height - 1);
+                }
+
+                // Draw day number: top-right corner, italicized
+                string dayText = cellDate.Day.ToString();
+                FontStyle dayStyle = FontStyle.Italic;
+                // If company holiday or weekend, day number can be bold italic
+                bool isHoliday = _companyHolidays.Any(h => h.Date == cellDate.Date);
+                if (isHoliday || cellDate.DayOfWeek == DayOfWeek.Saturday || cellDate.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    dayStyle = FontStyle.Bold | FontStyle.Italic;
+                }
+
+                using (var fontDay = new Font("Segoe UI", 9.5F, dayStyle))
+                using (var brushDay = new SolidBrush(btn.ForeColor))
+                {
+                    var sizeDay = pe.Graphics.MeasureString(dayText, fontDay);
+                    float xDay = btn.Width - sizeDay.Width - 4;
+                    float yDay = 4;
+                    pe.Graphics.DrawString(dayText, fontDay, brushDay, xDay, yDay);
+                }
+
+                // Draw employee IDs (leaves) if any
+                var onLeaveIds = _employees
+                    .Where(emp => emp != null && emp.LeavePeriods != null && emp.LeavePeriods.Any(lp => lp != null && cellDate.Date >= lp.StartDate && cellDate.Date <= lp.EndDate))
+                    .Select(emp => emp.Id)
+                    .ToList();
+
+                if (onLeaveIds.Count > 0)
+                {
+                    string idsText = string.Join("\n", onLeaveIds);
+                    
+                    // Center and make worker IDs highly readable, bold, colored red/dark red
+                    using (var fontIds = new Font("Segoe UI", 10F, FontStyle.Bold))
+                    using (var brushIds = new SolidBrush(Color.FromArgb(180, 20, 20)))
+                    {
+                        var sizeIds = pe.Graphics.MeasureString(idsText, fontIds);
+                        float xIds = (btn.Width - sizeIds.Width) / 2;
+                        float yIds = (btn.Height - sizeIds.Height) / 2 + 6;
+                        pe.Graphics.DrawString(idsText, fontIds, brushIds, xIds, yIds);
+                    }
+                }
+            }
+        }
+
         private void RefreshHolidaysUI()
         {
             lblMonthYear.Text = $"Tháng {_currentCalendarMonth:MM - yyyy}";
@@ -1254,6 +1314,7 @@ namespace OvertimeScheduler
                 DateTime cellDate = firstDay.AddDays(i - startOffset);
                 var btn = _calendarButtons[i];
                 btn.Tag = cellDate.Date;
+                btn.Text = ""; // Clear text for custom paint
 
                 // Tìm nhân viên nghỉ phép ngày này
                 var onLeaveIds = _employees
@@ -1263,19 +1324,6 @@ namespace OvertimeScheduler
 
                 // Kiểm tra ngày nghỉ công ty
                 bool isHoliday = _companyHolidays.Any(h => h.Date == cellDate.Date);
-
-                // Dựng text cho ô lịch: số ngày + mã nhân viên nghỉ (nếu có)
-                if (onLeaveIds.Count > 0)
-                {
-                    string ids = string.Join(",", onLeaveIds);
-                    btn.Text = $"{cellDate.Day}\n{ids}";
-                    btn.Font = new Font("Segoe UI", 7.5F, FontStyle.Regular);
-                }
-                else
-                {
-                    btn.Text = cellDate.Day.ToString();
-                    btn.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-                }
 
                 // Màu sắc ưu tiên: đỏ (nghỉ công ty) > vàng (có NV nghỉ phép) > trắng
                 if (isHoliday)
@@ -1296,6 +1344,8 @@ namespace OvertimeScheduler
                     btn.ForeColor = cellDate.Month != _currentCalendarMonth.Month
                         ? Color.DarkGray : Color.Black;
                 }
+
+                btn.Invalidate(); // Trực quan hóa thay đổi
             }
             tblCalendar.ResumeLayout();
         }

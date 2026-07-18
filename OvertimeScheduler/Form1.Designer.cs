@@ -520,15 +520,13 @@ namespace OvertimeScheduler
             // 
             // panelCalendarContainer
             // 
-            this.panelCalendarContainer.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.panelCalendarContainer.BackColor = System.Drawing.Color.White;
             this.panelCalendarContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelCalendarContainer.Controls.Add(this.tblCalendar);
             this.panelCalendarContainer.Controls.Add(this.panelHolidayHeader);
-            this.panelCalendarContainer.Location = new System.Drawing.Point(67, 38);
+            this.panelCalendarContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelCalendarContainer.Name = "panelCalendarContainer";
-            this.panelCalendarContainer.Padding = new System.Windows.Forms.Padding(5);
-            this.panelCalendarContainer.Size = new System.Drawing.Size(550, 480);
+            this.panelCalendarContainer.Padding = new System.Windows.Forms.Padding(10);
             this.panelCalendarContainer.TabIndex = 0;
 
             // 
