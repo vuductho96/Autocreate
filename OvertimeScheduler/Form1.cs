@@ -504,7 +504,6 @@ namespace OvertimeScheduler
                 flowEmployeePool.Controls.Add(CreateEmployeeCard(emp, "Pool", leaveToday));
             }
 
-            int poolCount = 0;
             foreach (var emp in _employees)
             {
                 bool isOnLeave = emp.LeavePeriods.Any(lp => activeDate >= lp.StartDate && activeDate <= lp.EndDate);
@@ -514,11 +513,7 @@ namespace OvertimeScheduler
 
                 if (!assignedAllToday.Contains(emp.Id) && matchesSearch && !isOnLeave)
                 {
-
-
                     flowEmployeePool.Controls.Add(CreateEmployeeCard(emp, "Pool", null));
-                    poolCount++;
-                    if (poolCount >= 50) break;
                 }
             }
 
@@ -787,11 +782,11 @@ namespace OvertimeScheduler
             cardPanel.SizeChanged += (s, ev) => UpdatePanelRegion(cardPanel);
             UpdatePanelRegion(cardPanel);
 
-            if (!isOnLeave)
+            if (location != "Pool" && !isOnLeave)
             {
                 var btnDelete = new Button
                 {
-                    Text = location == "Pool" ? "X" : "x",
+                    Text = "x",
                     Font = new Font("Segoe UI", 8F, FontStyle.Bold),
                     Size = new Size(18, 18),
                     Location = new Point(cardWidth - 22, (cardPanel.Height - 18) / 2),
@@ -801,28 +796,18 @@ namespace OvertimeScheduler
                 };
                 btnDelete.FlatAppearance.BorderSize = 0;
 
-                if (location == "Pool")
+                btnDelete.Click += (s, ev) =>
                 {
-                    btnDelete.Click += (s, ev) =>
+                    DateTime activeDate = ((DateItem)cbActiveDay.SelectedItem).Date;
+                    DateTime keyDate = GetScheduleKey(activeDate);
+                    var entry = _schedule.FirstOrDefault(se => se.Date == keyDate && se.ShiftName == location);
+                    if (entry != null)
                     {
-                        DateTime activeDate = ((DateItem)cbActiveDay.SelectedItem).Date;
-                        emp.LeavePeriods.Add(new LeavePeriod(activeDate, activeDate, "Báo nghỉ nhanh"));
-                        Log("System", $"Nhân viên {emp.Name} báo nghỉ vào ngày {activeDate:dd/MM/yyyy}.");
-                        RunAutoSchedule();
-                    };
-                }
-                else
-                {
-                    btnDelete.Click += (s, ev) =>
-                    {
-                        DateTime activeDate = ((DateItem)cbActiveDay.SelectedItem).Date;
-                        DateTime keyDate = GetScheduleKey(activeDate);
-                        var entry = _schedule.FirstOrDefault(se => se.Date == keyDate && se.ShiftName == location);
-                        if (entry != null) entry.EmployeeIds.Remove(emp.Id);
+                        entry.EmployeeIds.Remove(emp.Id);
                         SaveSchedule();
                         RedrawActiveDay();
-                    };
-                }
+                    }
+                };
                 cardPanel.Controls.Add(btnDelete);
 
                 cardPanel.MouseDown += (s, ev) =>
@@ -1006,6 +991,31 @@ namespace OvertimeScheduler
                 _zaloBot.StartBot(groupName);
                 btnToggleZalo.Text = "Tắt Zalo Bot";
                 btnToggleZalo.BackColor = Color.DarkRed;
+            }
+        }
+
+        private void btnAddEmployee_Click(object sender, EventArgs e)
+        {
+            using (var form = new OvertimeScheduler.Forms.AddEmployeeForm())
+            {
+                if (form.ShowDialog() == DialogResult.OK && form.NewEmployee != null)
+                {
+                    if (_employees.Any(x => x.Id.ToLower() == form.NewEmployee.Id.ToLower()))
+                    {
+                        MessageBox.Show("Mã nhân viên này đã tồn tại trong hệ thống!", "Trùng mã", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    _employees.Add(form.NewEmployee);
+                    
+                    // Sync to Excel and JSON
+                    Employee.SaveEmployeesToExcel(_employees);
+                    SaveEmployeesData();
+                    
+                    // Refresh and Log
+                    RedrawActiveDay();
+                    Log("System", $"Đã thêm nhân viên mới: [{form.NewEmployee.Id}] - {form.NewEmployee.Name}. Excel và dữ liệu đã được đồng bộ.");
+                }
             }
         }
 

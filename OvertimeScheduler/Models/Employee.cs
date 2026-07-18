@@ -146,5 +146,57 @@ namespace OvertimeScheduler.Models
                 new Employee("NV15", "Vu Van Tuyen", EmployeeRole.NewWorker)
             };
         }
+
+        public static void SaveEmployeesToExcel(List<Employee> employees)
+        {
+            string listPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ListNhânViên.xlsx");
+            if (!File.Exists(listPath))
+            {
+                listPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "ListNhânViên.xlsx");
+            }
+            if (!File.Exists(listPath))
+            {
+                listPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "ListNhânViên.xlsx");
+            }
+
+            if (!File.Exists(listPath)) return;
+
+            try
+            {
+                using (var workbook = new XLWorkbook(listPath))
+                {
+                    var worksheet = workbook.Worksheet(1);
+                    worksheet.Clear(); // Clear sheet completely
+
+                    // Headers
+                    worksheet.Cell(1, 1).Value = "Mã NV";
+                    worksheet.Cell(1, 2).Value = "Tên NV";
+                    worksheet.Cell(1, 3).Value = "Chức vụ";
+
+                    for (int i = 0; i < employees.Count; i++)
+                    {
+                        var emp = employees[i];
+                        worksheet.Cell(i + 2, 1).Value = emp.Id;
+                        worksheet.Cell(i + 2, 2).Value = emp.Name;
+                        worksheet.Cell(i + 2, 3).Value = GetExcelRoleName(emp.Role);
+                    }
+
+                    workbook.Save();
+                }
+            }
+            catch { }
+        }
+
+        private static string GetExcelRoleName(EmployeeRole role)
+        {
+            switch (role)
+            {
+                case EmployeeRole.Leader: return "Trưởng nhóm";
+                case EmployeeRole.Technician: return "Kỹ thuật";
+                case EmployeeRole.NewWorker: return "Công nhân mới";
+                case EmployeeRole.Worker:
+                default: return "Công nhân";
+            }
+        }
     }
 }

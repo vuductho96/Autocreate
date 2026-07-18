@@ -79,6 +79,7 @@ namespace OvertimeScheduler
             this.lblZalo = new System.Windows.Forms.Label();
             this.txtZaloGroupName = new System.Windows.Forms.TextBox();
             this.btnToggleZalo = new System.Windows.Forms.Button();
+            this.btnAddEmployee = new System.Windows.Forms.Button();
 
             this.panelTop.SuspendLayout();
             this.panelSidebar.SuspendLayout();
@@ -247,6 +248,7 @@ namespace OvertimeScheduler
             // 
             this.groupSidebar.Controls.Add(this.flowEmployeePool);
             this.groupSidebar.Controls.Add(this.txtSearch);
+            this.groupSidebar.Controls.Add(this.btnAddEmployee);
             this.groupSidebar.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupSidebar.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.groupSidebar.Location = new System.Drawing.Point(10, 10);
@@ -256,6 +258,22 @@ namespace OvertimeScheduler
             this.groupSidebar.TabIndex = 0;
             this.groupSidebar.TabStop = false;
             this.groupSidebar.Text = "DANH SÁCH NHÂN SỰ";
+
+            // 
+            // btnAddEmployee
+            // 
+            this.btnAddEmployee.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnAddEmployee.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAddEmployee.FlatAppearance.BorderSize = 0;
+            this.btnAddEmployee.BackColor = System.Drawing.Color.FromArgb(220, 230, 245);
+            this.btnAddEmployee.ForeColor = System.Drawing.Color.FromArgb(10, 50, 110);
+            this.btnAddEmployee.Location = new System.Drawing.Point(8, 47);
+            this.btnAddEmployee.Name = "btnAddEmployee";
+            this.btnAddEmployee.Size = new System.Drawing.Size(264, 25);
+            this.btnAddEmployee.TabIndex = 2;
+            this.btnAddEmployee.Text = "+ Thêm Nhân Viên Mới";
+            this.btnAddEmployee.UseVisualStyleBackColor = false;
+            this.btnAddEmployee.Click += new System.EventHandler(this.btnAddEmployee_Click);
 
             // 
             // flowEmployeePool
@@ -799,5 +817,6 @@ namespace OvertimeScheduler
         private System.Windows.Forms.Label lblZalo;
         private System.Windows.Forms.TextBox txtZaloGroupName;
         private System.Windows.Forms.Button btnToggleZalo;
+        private System.Windows.Forms.Button btnAddEmployee;
     }
 }
