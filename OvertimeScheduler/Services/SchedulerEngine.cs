@@ -219,16 +219,19 @@ namespace OvertimeScheduler.Services
                     return null;
                 }
 
-                // Ca 2: Điền tất cả nhân viên xoay ca về Ca 2
-                var ca2Employees = availableToday
-                    .Where(e => (e.Role == EmployeeRole.Worker || e.Role == EmployeeRole.NewWorker) 
-                                && GetShiftRotationForWeek(e.Id, date) == 2)
-                    .Select(e => e.Id)
-                    .ToList();
-                ca2Entry.EmployeeIds.AddRange(ca2Employees);
-                foreach (var empId in ca2Employees)
+                // Ca 2: Điền tất cả nhân viên xoay ca về Ca 2 (chỉ ngày thường mới đi ca 2)
+                if (!isWeekendKey)
                 {
-                    pickedToday.Add(empId);
+                    var ca2Employees = availableToday
+                        .Where(e => (e.Role == EmployeeRole.Worker || e.Role == EmployeeRole.NewWorker) 
+                                    && GetShiftRotationForWeek(e.Id, date) == 2)
+                        .Select(e => e.Id)
+                        .ToList();
+                    ca2Entry.EmployeeIds.AddRange(ca2Employees);
+                    foreach (var empId in ca2Employees)
+                    {
+                        pickedToday.Add(empId);
+                    }
                 }
 
                 // Ca Ngày: lọc chỉ lấy Leader, Tech, hoặc Operator xoay ca == 0 (Ca 1/Ngày)

@@ -68,7 +68,7 @@ namespace OvertimeScheduler
                 AutoScroll = true
             };
             tabPageSchedule.Controls.Add(flowDaySelector);
-            flowDaySelector.BringToFront();
+            flowDaySelector.SendToBack();
 
             // Khởi tạo weekday headers cho TableLayoutPanel Lịch
             string[] headers = { "CN", "T2", "T3", "T4", "T5", "T6", "T7" };
