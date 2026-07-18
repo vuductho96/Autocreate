@@ -34,25 +34,44 @@ namespace OvertimeScheduler.Services
                 DateTime monday = GetMonday(fromDate);
                 int currentRow = 1;
 
-                // 1. Tạo khối Ngày thường (T2 - T5/6)
-                DateTime weekdayEnd = monday.AddDays(4); // Thứ 6
-                string weekdayTitle = $"LỊCH LÀM VIỆC  NGÀY {monday:dd} ~ {weekdayEnd:dd/M/yyyy}";
-                WriteDayBlock(worksheet, ref currentRow, weekdayTitle, monday, employees, schedule, fromDate, toDate, saturdayWorking, holidays);
+                // 1. Tạo khối Ngày thường
+                var weekdayList = new List<DateTime>();
+                for (int i = 0; i < 5; i++)
+                {
+                    DateTime d = monday.AddDays(i);
+                    if (d >= fromDate.Date && d <= toDate.Date && !(holidays != null && holidays.Contains(d)))
+                    {
+                        weekdayList.Add(d);
+                    }
+                }
 
-                // 2. Tạo khối Thứ 7 (chỉ tạo nếu không phải là ngày làm thường)
-                if (!saturdayWorking)
+                if (weekdayList.Count > 0)
+                {
+                    DateTime startW = weekdayList.First();
+                    DateTime endW = weekdayList.Last();
+                    string weekdayTitle = startW.Date == endW.Date 
+                        ? $"LỊCH LÀM VIỆC  NGÀY {startW:dd/M/yyyy}"
+                        : $"LỊCH LÀM VIỆC  NGÀY {startW:dd} ~ {endW:dd/M/yyyy}";
+                    WriteDayBlock(worksheet, ref currentRow, weekdayTitle, monday, employees, schedule, fromDate, toDate, saturdayWorking, holidays);
+                }
+
+                // 2. Tạo khối Thứ 7
+                DateTime saturday = monday.AddDays(5);
+                if (saturday >= fromDate.Date && saturday <= toDate.Date && !saturdayWorking)
                 {
                     currentRow += 2;
-                    DateTime saturday = monday.AddDays(5);
                     string satTitle = $"LỊCH TĂNG CA  NGÀY {saturday:dd/M/yyyy}";
                     WriteDayBlock(worksheet, ref currentRow, satTitle, saturday, employees, schedule, fromDate, toDate, saturdayWorking, holidays);
                 }
 
-                // 3. Tạo khối Chủ Nhật (luôn là ngày tăng ca)
-                currentRow += 2;
+                // 3. Tạo khối Chủ Nhật
                 DateTime sunday = monday.AddDays(6);
-                string sunTitle = $"LỊCH TĂNG CA  NGÀY {sunday:dd/M/yyyy}";
-                WriteDayBlock(worksheet, ref currentRow, sunTitle, sunday, employees, schedule, fromDate, toDate, saturdayWorking, holidays);
+                if (sunday >= fromDate.Date && sunday <= toDate.Date)
+                {
+                    currentRow += 2;
+                    string sunTitle = $"LỊCH TĂNG CA  NGÀY {sunday:dd/M/yyyy}";
+                    WriteDayBlock(worksheet, ref currentRow, sunTitle, sunday, employees, schedule, fromDate, toDate, saturdayWorking, holidays);
+                }
 
                 // 4. Tạo các khối Ngày lễ công ty trong tuần (nếu có)
                 if (holidays != null)

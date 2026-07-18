@@ -360,54 +360,68 @@ namespace OvertimeScheduler
             cbActiveDay.SelectedIndexChanged -= cbActiveDay_SelectedIndexChanged;
             cbActiveDay.Items.Clear();
 
-            DateTime monday = GetMonday(dtpFrom.Value);
+            DateTime fromDate = dtpFrom.Value.Date;
+            DateTime toDate = dtpTo.Value.Date;
+            if (fromDate > toDate) return;
+
+            DateTime monday = GetMonday(fromDate);
             var holidayDates = _companyHolidays.Select(h => h.Date).ToList();
 
-            // 1. Ngày thường: T2 - T6 (loại trừ các ngày lễ ra riêng)
+            // 1. Ngày thường: T2 - T6
             var weekdayList = new List<DateTime>();
             for (int i = 0; i < 5; i++)
             {
                 DateTime d = monday.AddDays(i);
-                if (holidayDates.Contains(d)) continue;
-                weekdayList.Add(d);
+                if (d >= fromDate && d <= toDate && !holidayDates.Contains(d))
+                {
+                    weekdayList.Add(d);
+                }
             }
 
             if (weekdayList.Count > 0)
             {
-                cbActiveDay.Items.Add(new DateItem(monday, $"Ngày Thường (T2 - T6: {weekdayList.First():dd/MM} - {weekdayList.Last():dd/MM})"));
+                string dayRangeStr = weekdayList.Count == 1 
+                    ? $"{weekdayList.First():dd/MM}"
+                    : $"{weekdayList.First():dd/MM} - {weekdayList.Last():dd/MM}";
+                
+                string startDayName = GetVietnameseDayName(weekdayList.First().DayOfWeek);
+                string endDayName = GetVietnameseDayName(weekdayList.Last().DayOfWeek);
+                string dayNameRange = weekdayList.Count == 1 ? startDayName : $"{startDayName} - {endDayName}";
+
+                cbActiveDay.Items.Add(new DateItem(monday, $"Ngày Thường ({dayNameRange}: {dayRangeStr})"));
             }
 
-            // 2. Thứ 7: Phụ thuộc vào _companyHolidays
-            // Nếu có trong danh sách _companyHolidays (màu đỏ) -> là ngày tăng ca
-            // Nếu không có (màu trắng) -> là ngày làm thường, không xếp tăng ca
+            // 2. Thứ 7
             DateTime saturday = monday.AddDays(5);
-            if (holidayDates.Contains(saturday))
+            if (saturday >= fromDate && saturday <= toDate)
             {
-                var h = _companyHolidays.First(x => x.Date == saturday);
-                cbActiveDay.Items.Add(new DateItem(saturday, $"Thứ Bảy (Tăng ca: {saturday:dd/MM})"));
-            }
-            else
-            {
-                // Thứ 7 không có trong lịch cty -> tính là ngày làm thường, không có trong danh sách xếp ca
+                if (holidayDates.Contains(saturday))
+                {
+                    var h = _companyHolidays.First(x => x.Date == saturday);
+                    cbActiveDay.Items.Add(new DateItem(saturday, $"Thứ Bảy (Tăng ca: {saturday:dd/MM})"));
+                }
             }
 
             // 3. Chủ Nhật
             DateTime sunday = monday.AddDays(6);
-            if (holidayDates.Contains(sunday))
+            if (sunday >= fromDate && sunday <= toDate)
             {
-                var h = _companyHolidays.First(x => x.Date == sunday);
-                cbActiveDay.Items.Add(new DateItem(sunday, $"Ngày Lễ ({h.Name}: {sunday:dd/MM})"));
-            }
-            else
-            {
-                cbActiveDay.Items.Add(new DateItem(sunday, $"Chủ Nhật (Tăng ca: {sunday:dd/MM})"));
+                if (holidayDates.Contains(sunday))
+                {
+                    var h = _companyHolidays.First(x => x.Date == sunday);
+                    cbActiveDay.Items.Add(new DateItem(sunday, $"Ngày Lễ ({h.Name}: {sunday:dd/MM})"));
+                }
+                else
+                {
+                    cbActiveDay.Items.Add(new DateItem(sunday, $"Chủ Nhật (Tăng ca: {sunday:dd/MM})"));
+                }
             }
 
             // 4. Các ngày lễ khác trong tuần
             for (int i = 0; i < 5; i++)
             {
                 DateTime d = monday.AddDays(i);
-                if (holidayDates.Contains(d))
+                if (d >= fromDate && d <= toDate && holidayDates.Contains(d))
                 {
                     var h = _companyHolidays.First(x => x.Date == d);
                     cbActiveDay.Items.Add(new DateItem(d, $"Ngày Lễ ({h.Name}: {d:dd/MM})"));
@@ -419,6 +433,21 @@ namespace OvertimeScheduler
                 cbActiveDay.SelectedIndex = 0;
             }
             cbActiveDay.SelectedIndexChanged += cbActiveDay_SelectedIndexChanged;
+        }
+
+        private string GetVietnameseDayName(DayOfWeek day)
+        {
+            switch (day)
+            {
+                case DayOfWeek.Monday: return "T2";
+                case DayOfWeek.Tuesday: return "T3";
+                case DayOfWeek.Wednesday: return "T4";
+                case DayOfWeek.Thursday: return "T5";
+                case DayOfWeek.Friday: return "T6";
+                case DayOfWeek.Saturday: return "T7";
+                case DayOfWeek.Sunday: return "CN";
+                default: return "";
+            }
         }
 
         private void RunAutoSchedule()
