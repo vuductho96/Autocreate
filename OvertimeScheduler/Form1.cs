@@ -306,17 +306,18 @@ namespace OvertimeScheduler
                 cbActiveDay.Items.Add(new DateItem(monday, $"Ngày Thường (T2 - T6: {weekdayList.First():dd/MM} - {weekdayList.Last():dd/MM})"));
             }
 
-            // 2. Thứ 7 (nếu không làm thường và không phải ngày lễ)
-            // Thứ 7 luôn là ngày tăng ca
+            // 2. Thứ 7: Phụ thuộc vào _companyHolidays
+            // Nếu có trong danh sách _companyHolidays (màu đỏ) -> là ngày tăng ca
+            // Nếu không có (màu trắng) -> là ngày làm thường, không xếp tăng ca
             DateTime saturday = monday.AddDays(5);
             if (holidayDates.Contains(saturday))
             {
                 var h = _companyHolidays.First(x => x.Date == saturday);
-                cbActiveDay.Items.Add(new DateItem(saturday, $"Ngày Lễ ({h.Name}: {saturday:dd/MM})"));
+                cbActiveDay.Items.Add(new DateItem(saturday, $"Thứ Bảy (Tăng ca: {saturday:dd/MM})"));
             }
             else
             {
-                cbActiveDay.Items.Add(new DateItem(saturday, $"Thứ Bảy (Tăng ca: {saturday:dd/MM})"));
+                // Thứ 7 không có trong lịch cty -> tính là ngày làm thường, không có trong danh sách xếp ca
             }
 
             // 3. Chủ Nhật
@@ -454,6 +455,12 @@ namespace OvertimeScheduler
                 }
             }
 
+            // Append manual add buttons
+            AddManualAddButton(flowDayShift, "Ngày");
+            AddManualAddButton(flowCa2Shift, "Ca 2");
+            AddManualAddButton(flowNightShift, "Đêm");
+            AddManualAddButton(flowAdminShift, "Hành chính");
+
             flowEmployeePool.ResumeLayout();
             flowDayShift.ResumeLayout();
             flowCa2Shift.ResumeLayout();
@@ -533,13 +540,73 @@ namespace OvertimeScheduler
             overtimeChart.UpdateData(_employees, _schedule, start, end);
         }
 
+        private void AddManualAddButton(FlowLayoutPanel flowPanel, string shiftName)
+        {
+            var btnAdd = new Button
+            {
+                Text = "+",
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                ForeColor = Color.Red,
+                Size = new Size(245, 30),
+                FlatStyle = FlatStyle.Flat,
+                Margin = new Padding(3, 3, 3, 5),
+                Cursor = Cursors.Hand,
+                Tag = shiftName
+            };
+            btnAdd.FlatAppearance.BorderSize = 0;
+            btnAdd.Click += BtnAddEmployee_Click;
+            flowPanel.Controls.Add(btnAdd);
+        }
+
+        private void BtnAddEmployee_Click(object sender, EventArgs e)
+        {
+            if (!(sender is Button btn) || !(btn.Tag is string shiftName)) return;
+
+            if (cbActiveDay.SelectedItem == null) return;
+            DateTime activeDate = ((DateItem)cbActiveDay.SelectedItem).Date;
+            DateTime keyDate = GetScheduleKey(activeDate);
+            if (keyDate == DateTime.MinValue) return;
+
+            var assignedIds = new HashSet<string>();
+            var entryDay = _schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Ngày");
+            var entryCa2 = _schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Ca 2");
+            var entryNight = _schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Đêm");
+            var entryAdmin = _schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == "Hành chính");
+
+            if (entryDay != null) foreach (var id in entryDay.EmployeeIds) assignedIds.Add(id);
+            if (entryCa2 != null) foreach (var id in entryCa2.EmployeeIds) assignedIds.Add(id);
+            if (entryNight != null) foreach (var id in entryNight.EmployeeIds) assignedIds.Add(id);
+            if (entryAdmin != null) foreach (var id in entryAdmin.EmployeeIds) assignedIds.Add(id);
+
+            var availableEmployees = _employees
+                .Where(emp => !assignedIds.Contains(emp.Id) &&
+                              (!emp.LeavePeriods.Any(lp => activeDate >= lp.StartDate && activeDate <= lp.EndDate)))
+                .ToList();
+
+            using (var form = new OvertimeScheduler.Forms.SelectEmployeeForm(availableEmployees))
+            {
+                if (form.ShowDialog() == DialogResult.OK && form.SelectedEmployee != null)
+                {
+                    var entry = _schedule.FirstOrDefault(s => s.Date == keyDate && s.ShiftName == shiftName);
+                    if (entry == null)
+                    {
+                        entry = new ScheduleEntry { Date = keyDate, ShiftName = shiftName, EmployeeIds = new List<string>() };
+                        _schedule.Add(entry);
+                    }
+                    entry.EmployeeIds.Add(form.SelectedEmployee.Id);
+                    SaveSchedule();
+                    RedrawActiveDay();
+                }
+            }
+        }
+
         private Panel CreateEmployeeCard(Employee emp, string location, LeavePeriod? leave = null)
         {
             bool isOnLeave = leave != null;
 
             var cardPanel = new Panel
             {
-                Size = new Size(245, isOnLeave ? 68 : 55),
+                Size = new Size(245, isOnLeave ? 45 : 30),
                 BorderStyle = BorderStyle.FixedSingle,
                 Margin = new Padding(3, 3, 3, 5),
                 Tag = emp.Id
@@ -547,54 +614,35 @@ namespace OvertimeScheduler
 
             if (isOnLeave)
             {
-                // Card vàng cam đặc trưng cho nghỉ phép
                 cardPanel.BackColor = Color.FromArgb(255, 243, 205);
             }
             else
             {
                 switch (emp.Role)
                 {
-                    case EmployeeRole.Leader:
-                        cardPanel.BackColor = Color.LightSkyBlue;
-                        break;
-                    case EmployeeRole.Technician:
-                        cardPanel.BackColor = Color.FromArgb(40, 40, 40);
-                        break;
-                    case EmployeeRole.NewWorker:
-                        cardPanel.BackColor = Color.FromArgb(230, 70, 70);
-                        break;
+                    case EmployeeRole.Leader: cardPanel.BackColor = Color.LightSkyBlue; break;
+                    case EmployeeRole.Technician: cardPanel.BackColor = Color.FromArgb(40, 40, 40); break;
+                    case EmployeeRole.NewWorker: cardPanel.BackColor = Color.FromArgb(230, 70, 70); break;
                     case EmployeeRole.Worker:
-                    default:
-                        cardPanel.BackColor = Color.White;
-                        break;
+                    default: cardPanel.BackColor = Color.White; break;
                 }
             }
 
             Color textColor = isOnLeave ? Color.FromArgb(130, 80, 0)
-                : (emp.Role == EmployeeRole.Technician || emp.Role == EmployeeRole.NewWorker)
-                    ? Color.White : Color.Black;
+                : (emp.Role == EmployeeRole.Technician || emp.Role == EmployeeRole.NewWorker) ? Color.White : Color.Black;
 
+            string roleName = isOnLeave ? "NGHỈ PHÉP" : GetRoleNameVietnamese(emp.Role);
+            
             var lblName = new Label
             {
-                Text = $"{emp.Id} - {emp.Name}",
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Text = $"{emp.Id} - {emp.Name} ({roleName})",
+                Font = new Font("Segoe UI", 8.5F, isOnLeave ? FontStyle.Bold : FontStyle.Regular),
                 ForeColor = textColor,
                 Location = new Point(5, 5),
                 AutoSize = true
             };
             cardPanel.Controls.Add(lblName);
 
-            var lblRole = new Label
-            {
-                Text = isOnLeave ? "🏖 NGHỈ PHÉP" : GetRoleNameVietnamese(emp.Role),
-                Font = new Font("Segoe UI", 8F, isOnLeave ? FontStyle.Bold : FontStyle.Italic),
-                ForeColor = isOnLeave ? Color.FromArgb(200, 100, 0) : textColor,
-                Location = new Point(5, 24),
-                AutoSize = true
-            };
-            cardPanel.Controls.Add(lblRole);
-
-            // Dòng note lý do nghỉ phép
             if (isOnLeave && !string.IsNullOrEmpty(leave!.Note))
             {
                 var lblNote = new Label
@@ -602,9 +650,8 @@ namespace OvertimeScheduler
                     Text = $"📋 {leave.Note}",
                     Font = new Font("Segoe UI", 7.5F, FontStyle.Regular),
                     ForeColor = Color.FromArgb(100, 60, 0),
-                    Location = new Point(5, 43),
-                    AutoSize = false,
-                    Size = new Size(200, 18),
+                    Location = new Point(5, 22),
+                    AutoSize = true,
                     Padding = new Padding(0)
                 };
                 cardPanel.Controls.Add(lblNote);
@@ -658,7 +705,6 @@ namespace OvertimeScheduler
 
             cardPanel.DoubleClick += CardPanel_DoubleClick;
             lblName.DoubleClick += (s, ev) => CardPanel_DoubleClick(cardPanel, ev);
-            lblRole.DoubleClick += (s, ev) => CardPanel_DoubleClick(cardPanel, ev);
 
             return cardPanel;
         }
@@ -928,7 +974,7 @@ namespace OvertimeScheduler
 
                 // Tìm nhân viên nghỉ phép ngày này
                 var onLeaveIds = _employees
-                    .Where(emp => emp.LeavePeriods.Any(lp => cellDate.Date >= lp.StartDate && cellDate.Date <= lp.EndDate))
+                    .Where(emp => emp != null && emp.LeavePeriods != null && emp.LeavePeriods.Any(lp => lp != null && cellDate.Date >= lp.StartDate && cellDate.Date <= lp.EndDate))
                     .Select(emp => emp.Id)
                     .ToList();
 
