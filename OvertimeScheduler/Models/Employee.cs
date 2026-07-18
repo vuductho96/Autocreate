@@ -20,6 +20,8 @@ namespace OvertimeScheduler.Models
         public DateTime EndDate { get; set; }
         public string Note { get; set; }
 
+        public LeavePeriod() { }
+
         public LeavePeriod(DateTime start, DateTime end, string note = "")
         {
             StartDate = start.Date;

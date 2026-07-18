@@ -110,6 +110,13 @@ namespace OvertimeScheduler
                 RedrawActiveDay();
             }
 
+            // Hook up auto scaling on window/monitor resize
+            flowEmployeePool.SizeChanged += FlowPanel_SizeChanged;
+            flowDayShift.SizeChanged += FlowPanel_SizeChanged;
+            flowCa2Shift.SizeChanged += FlowPanel_SizeChanged;
+            flowNightShift.SizeChanged += FlowPanel_SizeChanged;
+            flowAdminShift.SizeChanged += FlowPanel_SizeChanged;
+
             _isInitializing = false;
         }
 
@@ -602,12 +609,17 @@ namespace OvertimeScheduler
 
         private void AddManualAddButton(FlowLayoutPanel flowPanel, string shiftName)
         {
+            var targetPanel = GetFlowPanelByLocation(shiftName);
+            int btnWidth = (targetPanel != null && targetPanel.ClientSize.Width > 20) 
+                ? targetPanel.ClientSize.Width - 12 
+                : 140;
+
             var btnAdd = new Button
             {
                 Text = "+",
                 Font = new Font("Segoe UI", 12F, FontStyle.Bold),
                 ForeColor = Color.Red,
-                Size = new Size(140, 30),
+                Size = new Size(btnWidth, 30),
                 FlatStyle = FlatStyle.Flat,
                 Margin = new Padding(3, 3, 3, 5),
                 Cursor = Cursors.Hand,
@@ -686,7 +698,10 @@ namespace OvertimeScheduler
         private Panel CreateEmployeeCard(Employee emp, string location, LeavePeriod? leave = null)
         {
             bool isOnLeave = leave != null;
-            int cardWidth = (location == "Pool") ? 220 : 140;
+            var flowPanel = GetFlowPanelByLocation(location);
+            int cardWidth = (flowPanel != null && flowPanel.ClientSize.Width > 20) 
+                ? flowPanel.ClientSize.Width - 12 
+                : ((location == "Pool") ? 220 : 140);
 
             var cardPanel = new Panel
             {
@@ -835,6 +850,32 @@ namespace OvertimeScheduler
             p.Region = new Region(path);
         }
 
+        private FlowLayoutPanel GetFlowPanelByLocation(string location)
+        {
+            if (location == "Pool") return flowEmployeePool;
+            if (location == "Ngày") return flowDayShift;
+            if (location == "Ca2") return flowCa2Shift;
+            if (location == "Đêm") return flowNightShift;
+            if (location == "Hành chính") return flowAdminShift;
+            return null;
+        }
+
+        private void FlowPanel_SizeChanged(object sender, EventArgs e)
+        {
+            if (!(sender is FlowLayoutPanel flowPanel)) return;
+            flowPanel.SuspendLayout();
+            int targetWidth = flowPanel.ClientSize.Width - 12;
+            if (targetWidth < 50) targetWidth = 50;
+            foreach (Control ctrl in flowPanel.Controls)
+            {
+                if (ctrl is Panel || ctrl is Button)
+                {
+                    ctrl.Width = targetWidth;
+                }
+            }
+            flowPanel.ResumeLayout();
+        }
+
         private void CardPanel_DoubleClick(object sender, EventArgs e)
         {
             Panel card = (Panel)sender;
@@ -848,8 +889,34 @@ namespace OvertimeScheduler
                 {
                     if (editForm.ShowDialog() == DialogResult.OK)
                     {
-                        Log("System", $"Đã cập nhật cấu hình cho {emp.Name}. Tự động tính toán lại...");
-                        RunAutoSchedule();
+                        CleanUpLeaveEmployeesFromSchedule();
+                        SaveSchedule();
+                        RedrawActiveDay();
+                        RefreshHolidaysUI();
+                        Log("System", $"Đã cập nhật cấu hình cho {emp.Name}.");
+                    }
+                }
+            }
+        }
+
+        private void CleanUpLeaveEmployeesFromSchedule()
+        {
+            foreach (var emp in _employees)
+            {
+                foreach (var leave in emp.LeavePeriods)
+                {
+                    for (var dt = leave.StartDate.Date; dt <= leave.EndDate.Date; dt = dt.AddDays(1))
+                    {
+                        DateTime keyDate = GetScheduleKey(dt);
+                        if (keyDate == DateTime.MinValue) continue;
+
+                        foreach (var entry in _schedule.Where(s => s.Date == keyDate))
+                        {
+                            if (entry.EmployeeIds.Contains(emp.Id))
+                            {
+                                entry.EmployeeIds.Remove(emp.Id);
+                            }
+                        }
                     }
                 }
             }
