@@ -637,11 +637,11 @@ namespace OvertimeScheduler
             this.numMaxPerShift.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.numMaxPerShift.Location = new System.Drawing.Point(160, 26);
             this.numMaxPerShift.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-            this.numMaxPerShift.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
+            this.numMaxPerShift.Maximum = new decimal(new int[] { 20, 0, 0, 0 });
             this.numMaxPerShift.Name = "numMaxPerShift";
             this.numMaxPerShift.Size = new System.Drawing.Size(60, 25);
             this.numMaxPerShift.TabIndex = 2;
-            this.numMaxPerShift.Value = new decimal(new int[] { 2, 0, 0, 0 });
+            this.numMaxPerShift.Value = new decimal(new int[] { 8, 0, 0, 0 });
             this.numMaxPerShift.ValueChanged += new System.EventHandler(this.numMaxPerShift_ValueChanged);
 
             // 

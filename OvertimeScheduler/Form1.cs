@@ -554,7 +554,8 @@ namespace OvertimeScheduler
             DateTime start = dtpFrom.Value.Date;
             DateTime end = dtpTo.Value.Date;
 
-            double totalScheduled = 0;
+            double weekdayScheduled = 0;
+            double weekendScheduled = 0;
             var empHours = _employees.ToDictionary(e => e.Id, e => 0.0);
 
             foreach (var emp in _employees)
@@ -564,6 +565,13 @@ namespace OvertimeScheduler
                     if (kvp.Key >= start && kvp.Key <= end)
                     {
                         empHours[emp.Id] += kvp.Value;
+                        bool isWeekendOrHoliday = kvp.Key.DayOfWeek == DayOfWeek.Saturday || 
+                                                 kvp.Key.DayOfWeek == DayOfWeek.Sunday || 
+                                                 _companyHolidays.Any(h => h.Date == kvp.Key.Date);
+                        if (isWeekendOrHoliday)
+                            weekendScheduled += kvp.Value;
+                        else
+                            weekdayScheduled += kvp.Value;
                     }
                 }
             }
@@ -572,6 +580,10 @@ namespace OvertimeScheduler
             {
                 DateTime keyDate = GetScheduleKey(date);
                 if (keyDate == DateTime.MinValue) continue;
+
+                bool isWeekendOrHoliday = date.DayOfWeek == DayOfWeek.Saturday || 
+                                         date.DayOfWeek == DayOfWeek.Sunday || 
+                                         _companyHolidays.Any(h => h.Date == date.Date);
                 
                 foreach (var shiftName in new[] { "Ngày", "Đêm", "Hành chính" })
                 {
@@ -585,7 +597,13 @@ namespace OvertimeScheduler
                             {
                                 if (!emp.FixedOvertimeHours.ContainsKey(date))
                                 {
-                                    empHours[empId] += 4.0;
+                                    double hours = isWeekendOrHoliday ? 12.0 : 4.0;
+                                    empHours[empId] += hours;
+
+                                    if (isWeekendOrHoliday)
+                                        weekendScheduled += hours;
+                                    else
+                                        weekdayScheduled += hours;
                                 }
                             }
                         }
@@ -593,19 +611,18 @@ namespace OvertimeScheduler
                 }
             }
 
-            totalScheduled = empHours.Values.Sum();
-
+            double totalScheduled = empHours.Values.Sum();
             double budget = (double)numMonthlyBudget.Value;
             double remaining = budget - totalScheduled;
 
-            lblBudgetStatus.Text = $"Đã xếp: {totalScheduled:0} giờ | Còn lại: {remaining:0} giờ";
+            lblBudgetStatus.Text = $"Đã xếp: {totalScheduled:0} giờ (Ngày thường: {weekdayScheduled:0}h | Ngày nghỉ: {weekendScheduled:0}h) | Còn lại: {remaining:0} giờ";
             if (remaining < 0)
             {
                 lblBudgetStatus.ForeColor = Color.Red;
             }
             else
             {
-                lblBudgetStatus.ForeColor = Color.FromArgb(46, 125, 50);
+                lblBudgetStatus.ForeColor = Color.FromArgb(46, 125, 50); // Dark Green
             }
 
             overtimeChart.UpdateData(_employees, _schedule, start, end);
