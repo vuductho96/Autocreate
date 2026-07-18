@@ -1286,15 +1286,28 @@ namespace OvertimeScheduler
 
                 if (onLeaveIds.Count > 0)
                 {
-                    string idsText = string.Join("\n", onLeaveIds);
+                    string idsText = string.Join(", ", onLeaveIds);
                     
-                    // Center and make worker IDs highly readable, bold, colored black
-                    using (var fontIds = new Font("Segoe UI", 10F, FontStyle.Bold))
+                    float fontSize = 10F;
+                    Font fontIds = new Font("Segoe UI", fontSize, FontStyle.Bold);
+                    SizeF sizeIds = pe.Graphics.MeasureString(idsText, fontIds);
+                    
+                    float maxAllowedWidth = btn.Width - 10;
+                    float maxAllowedHeight = btn.Height - 16;
+                    
+                    while ((sizeIds.Width > maxAllowedWidth || sizeIds.Height > maxAllowedHeight) && fontSize > 5F)
+                    {
+                        fontSize -= 0.5F;
+                        fontIds.Dispose();
+                        fontIds = new Font("Segoe UI", fontSize, FontStyle.Bold);
+                        sizeIds = pe.Graphics.MeasureString(idsText, fontIds);
+                    }
+
+                    using (fontIds)
                     using (var brushIds = new SolidBrush(Color.Black))
                     {
-                        var sizeIds = pe.Graphics.MeasureString(idsText, fontIds);
                         float xIds = (btn.Width - sizeIds.Width) / 2;
-                        float yIds = (btn.Height - sizeIds.Height) / 2 + 6;
+                        float yIds = (btn.Height - sizeIds.Height) / 2 + 5;
                         pe.Graphics.DrawString(idsText, fontIds, brushIds, xIds, yIds);
                     }
                 }
