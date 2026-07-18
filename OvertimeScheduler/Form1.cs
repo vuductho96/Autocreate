@@ -1288,9 +1288,9 @@ namespace OvertimeScheduler
                 {
                     string idsText = string.Join("\n", onLeaveIds);
                     
-                    // Center and make worker IDs highly readable, bold, colored red/dark red
+                    // Center and make worker IDs highly readable, bold, colored black
                     using (var fontIds = new Font("Segoe UI", 10F, FontStyle.Bold))
-                    using (var brushIds = new SolidBrush(Color.FromArgb(180, 20, 20)))
+                    using (var brushIds = new SolidBrush(Color.Black))
                     {
                         var sizeIds = pe.Graphics.MeasureString(idsText, fontIds);
                         float xIds = (btn.Width - sizeIds.Width) / 2;
@@ -1325,18 +1325,11 @@ namespace OvertimeScheduler
                 // Kiểm tra ngày nghỉ công ty
                 bool isHoliday = _companyHolidays.Any(h => h.Date == cellDate.Date);
 
-                // Màu sắc ưu tiên: đỏ (nghỉ công ty) > vàng (có NV nghỉ phép) > trắng
+                // Màu sắc ưu tiên: đỏ (nghỉ công ty) > trắng (vì không dùng màu vàng nữa)
                 if (isHoliday)
                 {
                     btn.BackColor = Color.FromArgb(239, 83, 80);
                     btn.ForeColor = Color.White;
-                }
-                else if (onLeaveIds.Count > 0)
-                {
-                    btn.BackColor = Color.FromArgb(255, 249, 196); // Vàng nhạt
-                    btn.ForeColor = cellDate.Month != _currentCalendarMonth.Month
-                        ? Color.FromArgb(180, 140, 0)
-                        : Color.FromArgb(130, 80, 0);  // Nâu vàng
                 }
                 else
                 {
