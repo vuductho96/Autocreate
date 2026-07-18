@@ -248,7 +248,6 @@ namespace OvertimeScheduler
             // 
             this.groupSidebar.Controls.Add(this.flowEmployeePool);
             this.groupSidebar.Controls.Add(this.txtSearch);
-            this.groupSidebar.Controls.Add(this.btnAddEmployee);
             this.groupSidebar.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupSidebar.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.groupSidebar.Location = new System.Drawing.Point(10, 10);

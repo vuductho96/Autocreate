@@ -517,6 +517,9 @@ namespace OvertimeScheduler
                 }
             }
 
+            // Append manual add button for employees at the bottom of flowEmployeePool
+            AddPoolAddButton();
+
             // Append manual add buttons
             AddManualAddButton(flowDayShift, "Ngày");
             AddManualAddButton(flowCa2Shift, "Ca2");
@@ -636,6 +639,40 @@ namespace OvertimeScheduler
             };
 
             flowPanel.Controls.Add(btnAdd);
+        }
+
+        private void AddPoolAddButton()
+        {
+            int btnWidth = flowEmployeePool.ClientSize.Width > 20 
+                ? flowEmployeePool.ClientSize.Width - 12 
+                : 220;
+
+            var btnAdd = new Button
+            {
+                Text = "+",
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(10, 50, 110),
+                Size = new Size(btnWidth, 30),
+                FlatStyle = FlatStyle.Flat,
+                Margin = new Padding(3, 3, 3, 5),
+                Cursor = Cursors.Hand,
+                BackColor = Color.FromArgb(240, 244, 248)
+            };
+            btnAdd.FlatAppearance.BorderSize = 0;
+            btnAdd.Click += btnAddEmployee_Click;
+
+            // Draw dashed border
+            btnAdd.Paint += (s, pe) =>
+            {
+                pe.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                using (Pen pen = new Pen(Color.FromArgb(180, 180, 180), 1.5F))
+                {
+                    pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+                    pe.Graphics.DrawRectangle(pen, 0, 0, btnAdd.Width - 1, btnAdd.Height - 1);
+                }
+            };
+
+            flowEmployeePool.Controls.Add(btnAdd);
         }
 
         private void BtnAddEmployee_Click(object sender, EventArgs e)
@@ -772,7 +809,9 @@ namespace OvertimeScheduler
             cardPanel.SizeChanged += (s, ev) => UpdatePanelRegion(cardPanel);
             UpdatePanelRegion(cardPanel);
 
-            if (location != "Pool" && !isOnLeave)
+            // Add delete button (X button)
+            bool showDelete = (location == "Pool") || (!isOnLeave);
+            if (showDelete)
             {
                 var btnDelete = new Button
                 {
@@ -786,18 +825,49 @@ namespace OvertimeScheduler
                 };
                 btnDelete.FlatAppearance.BorderSize = 0;
 
-                btnDelete.Click += (s, ev) =>
+                if (location == "Pool")
                 {
-                    DateTime activeDate = ((DateItem)cbActiveDay.SelectedItem).Date;
-                    DateTime keyDate = GetScheduleKey(activeDate);
-                    var entry = _schedule.FirstOrDefault(se => se.Date == keyDate && se.ShiftName == location);
-                    if (entry != null)
+                    btnDelete.Click += (s, ev) =>
                     {
-                        entry.EmployeeIds.Remove(emp.Id);
-                        SaveSchedule();
-                        RedrawActiveDay();
-                    }
-                };
+                        var confirmResult = MessageBox.Show(
+                            $"Bạn có chắc chắn muốn xóa hoàn toàn nhân viên {emp.Name} [{emp.Id}] khỏi hệ thống không?\nHành động này cũng sẽ gỡ nhân viên khỏi tất cả các ca xếp lịch.",
+                            "Xác nhận xóa nhân sự",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Warning
+                        );
+                        if (confirmResult == DialogResult.Yes)
+                        {
+                            _employees.Remove(emp);
+                            foreach (var entry in _schedule)
+                            {
+                                entry.EmployeeIds.Remove(emp.Id);
+                            }
+                            Employee.SaveEmployeesToExcel(_employees);
+                            SaveEmployeesData();
+                            SaveSchedule();
+
+                            RedrawActiveDay();
+                            RefreshHolidaysUI();
+
+                            Log("System", $"Đã xóa nhân viên: [{emp.Id}] - {emp.Name} khỏi hệ thống.");
+                        }
+                    };
+                }
+                else
+                {
+                    btnDelete.Click += (s, ev) =>
+                    {
+                        DateTime activeDate = ((DateItem)cbActiveDay.SelectedItem).Date;
+                        DateTime keyDate = GetScheduleKey(activeDate);
+                        var entry = _schedule.FirstOrDefault(se => se.Date == keyDate && se.ShiftName == location);
+                        if (entry != null)
+                        {
+                            entry.EmployeeIds.Remove(emp.Id);
+                            SaveSchedule();
+                            RedrawActiveDay();
+                        }
+                    };
+                }
                 cardPanel.Controls.Add(btnDelete);
 
                 cardPanel.MouseDown += (s, ev) =>
