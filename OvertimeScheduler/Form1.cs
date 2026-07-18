@@ -517,6 +517,11 @@ namespace OvertimeScheduler
                 }
             }
 
+            int poolCount = flowEmployeePool.Controls.OfType<Panel>().Count();
+            groupSidebar.Text = string.IsNullOrEmpty(keyword) 
+                ? $"DANH SÁCH NHÂN SỰ ({_employees.Count})" 
+                : $"DANH SÁCH NHÂN SỰ ({poolCount}/{_employees.Count})";
+
             // Append manual add button for employees at the bottom of flowEmployeePool
             AddPoolAddButton();
 
