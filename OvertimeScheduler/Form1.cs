@@ -23,6 +23,7 @@ namespace OvertimeScheduler
         private DateTime _currentCalendarMonth;
         private Button[] _calendarButtons = new Button[42];
         private bool _isInitializing = true;
+        private FlowLayoutPanel flowDaySelector;
         
         // Đường dẫn file lưu lịch
         private static readonly string ScheduleSaveFile = Path.Combine(
@@ -49,6 +50,25 @@ namespace OvertimeScheduler
 
             dtpFrom.Value = _weekStart;
             dtpTo.Value = _weekEnd;
+
+            // Ẩn combo box ngày xếp
+            cbActiveDay.Visible = false;
+            lblActiveDay.Visible = false;
+
+            // Khởi tạo thanh nút chọn ngày xếp trên Bảng Xếp Lịch
+            flowDaySelector = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Top,
+                Height = 36,
+                BackColor = Color.FromArgb(240, 244, 248),
+                Padding = new Padding(8, 4, 8, 4),
+                Margin = new Padding(0),
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                AutoScroll = true
+            };
+            tabPageSchedule.Controls.Add(flowDaySelector);
+            flowDaySelector.BringToFront();
 
             // Khởi tạo weekday headers cho TableLayoutPanel Lịch
             string[] headers = { "CN", "T2", "T3", "T4", "T5", "T6", "T7" };
@@ -407,11 +427,43 @@ namespace OvertimeScheduler
                 }
             }
 
+            if (flowDaySelector != null)
+            {
+                flowDaySelector.Controls.Clear();
+                foreach (DateItem item in cbActiveDay.Items)
+                {
+                    var btn = new Button
+                    {
+                        Text = item.ToString(),
+                        Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                        Height = 28,
+                        AutoSize = true,
+                        FlatStyle = FlatStyle.Flat,
+                        BackColor = Color.White,
+                        ForeColor = Color.FromArgb(33, 33, 33),
+                        Margin = new Padding(0, 0, 8, 0),
+                        Tag = item
+                    };
+                    btn.FlatAppearance.BorderSize = 1;
+                    btn.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
+                    btn.Cursor = Cursors.Hand;
+
+                    btn.Click += (s, ev) =>
+                    {
+                        cbActiveDay.SelectedItem = item;
+                    };
+
+                    flowDaySelector.Controls.Add(btn);
+                }
+            }
+
+            cbActiveDay.SelectedIndexChanged += cbActiveDay_SelectedIndexChanged;
+
             if (cbActiveDay.Items.Count > 0)
             {
                 cbActiveDay.SelectedIndex = 0;
             }
-            cbActiveDay.SelectedIndexChanged += cbActiveDay_SelectedIndexChanged;
+            cbActiveDay_SelectedIndexChanged(cbActiveDay, EventArgs.Empty);
         }
 
         private string GetVietnameseDayName(DayOfWeek day)
@@ -1088,6 +1140,27 @@ namespace OvertimeScheduler
 
         private void cbActiveDay_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (flowDaySelector != null)
+            {
+                foreach (Control ctrl in flowDaySelector.Controls)
+                {
+                    if (ctrl is Button btn && btn.Tag is DateItem btnItem)
+                    {
+                        if (btnItem == cbActiveDay.SelectedItem)
+                        {
+                            btn.BackColor = Color.FromArgb(0, 120, 215); // Win10 Blue
+                            btn.ForeColor = Color.White;
+                            btn.FlatAppearance.BorderColor = Color.FromArgb(0, 120, 215);
+                        }
+                        else
+                        {
+                            btn.BackColor = Color.White;
+                            btn.ForeColor = Color.FromArgb(33, 33, 33);
+                            btn.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
+                        }
+                    }
+                }
+            }
             RedrawActiveDay();
         }
 
