@@ -464,29 +464,30 @@ namespace OvertimeScheduler
             foreach (var empId in dayShiftIds)
             {
                 var emp = _employees.FirstOrDefault(e => e.Id == empId);
-                if (emp != null) flowDayShift.Controls.Add(CreateEmployeeCard(emp, "Ngày"));
+                if (emp != null) flowDayShift.Controls.Add(CreateEmployeeCard(emp, "Ngày", activeDate));
             }
 
             foreach (var empId in ca2ShiftIds)
             {
                 var emp = _employees.FirstOrDefault(e => e.Id == empId);
-                if (emp != null) flowCa2Shift.Controls.Add(CreateEmployeeCard(emp, "Ca2"));
+                if (emp != null) flowCa2Shift.Controls.Add(CreateEmployeeCard(emp, "Ca2", activeDate));
             }
 
             foreach (var empId in nightShiftIds)
             {
                 var emp = _employees.FirstOrDefault(e => e.Id == empId);
-                if (emp != null) flowNightShift.Controls.Add(CreateEmployeeCard(emp, "Đêm"));
+                if (emp != null) flowNightShift.Controls.Add(CreateEmployeeCard(emp, "Đêm", activeDate));
             }
 
             foreach (var empId in adminShiftIds)
             {
                 var emp = _employees.FirstOrDefault(e => e.Id == empId);
-                if (emp != null) flowAdminShift.Controls.Add(CreateEmployeeCard(emp, "Hành chính"));
+                if (emp != null) flowAdminShift.Controls.Add(CreateEmployeeCard(emp, "Hành chính", activeDate));
             }
 
             string keyword = txtSearch.Text.Trim().ToLower();
             var assignedAllToday = dayShiftIds.Concat(ca2ShiftIds).Concat(nightShiftIds).Concat(adminShiftIds).ToHashSet();
+            int poolCount = 0;
 
             // Hiển thị nhân viên nghỉ phép với card vàng + note
             foreach (var emp in _employees)
@@ -500,7 +501,8 @@ namespace OvertimeScheduler
                                     emp.Id.ToLower().Contains(keyword);
                 if (!matchesSearch) continue;
 
-                flowEmployeePool.Controls.Add(CreateEmployeeCard(emp, "Pool", leaveToday));
+                flowEmployeePool.Controls.Add(CreateEmployeeCard(emp, "Pool", activeDate, leaveToday));
+                poolCount++;
             }
 
             foreach (var emp in _employees)
@@ -512,11 +514,11 @@ namespace OvertimeScheduler
 
                 if (!assignedAllToday.Contains(emp.Id) && matchesSearch && !isOnLeave)
                 {
-                    flowEmployeePool.Controls.Add(CreateEmployeeCard(emp, "Pool", null));
+                    flowEmployeePool.Controls.Add(CreateEmployeeCard(emp, "Pool", activeDate, null));
+                    poolCount++;
                 }
             }
 
-            int poolCount = flowEmployeePool.Controls.OfType<Panel>().Count();
             groupSidebar.Text = string.IsNullOrEmpty(keyword) 
                 ? $"DANH SÁCH NHÂN SỰ ({_employees.Count})" 
                 : $"DANH SÁCH NHÂN SỰ ({poolCount}/{_employees.Count})";
@@ -721,7 +723,7 @@ namespace OvertimeScheduler
             }
         }
 
-        private Panel CreateEmployeeCard(Employee emp, string location, LeavePeriod? leave = null)
+        private Panel CreateEmployeeCard(Employee emp, string location, DateTime activeDate, LeavePeriod? leave = null)
         {
             bool isOnLeave = leave != null;
             var flowPanel = GetFlowPanelByLocation(location);
@@ -758,7 +760,8 @@ namespace OvertimeScheduler
             Color textColor = isOnLeave ? Color.FromArgb(130, 80, 0)
                 : (emp.Role == EmployeeRole.Technician || emp.Role == EmployeeRole.NewWorker) ? Color.White : Color.Black;
 
-            string cardText = isOnLeave ? $"{emp.Id} - {emp.Name} (NGHỈ PHÉP)" : $"{emp.Id} - {emp.Name}";
+            string otNote = GetEmployeeOvertimeNote(emp, activeDate, location);
+            string cardText = isOnLeave ? $"{emp.Id} - {emp.Name} (NGHỈ PHÉP)" : $"{emp.Id} - {emp.Name}{otNote}";
             
             var lblName = new Label
             {
