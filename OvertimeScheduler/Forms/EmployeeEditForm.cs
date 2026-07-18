@@ -64,7 +64,19 @@ namespace OvertimeScheduler.Forms
 
         private void btnRemoveLeave_Click(object sender, EventArgs e)
         {
-            if (lstLeavePeriods.SelectedItem == null) return;
+            if (lstLeavePeriods.SelectedItem == null)
+            {
+                if (_tempLeavePeriods.Count == 1)
+                {
+                    _tempLeavePeriods.RemoveAt(0);
+                    RefreshLeaveList();
+                }
+                else if (_tempLeavePeriods.Count > 1)
+                {
+                    MessageBox.Show("Vui lòng click chọn ngày nghỉ trong danh sách trước khi bấm Xóa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                return;
+            }
             _tempLeavePeriods.Remove((LeavePeriod)lstLeavePeriods.SelectedItem);
             RefreshLeaveList();
         }
@@ -86,7 +98,20 @@ namespace OvertimeScheduler.Forms
 
         private void btnRemoveOverride_Click(object sender, EventArgs e)
         {
-            if (lstOverrides.SelectedItem == null) return;
+            if (lstOverrides.SelectedItem == null)
+            {
+                if (_tempOverrides.Count == 1)
+                {
+                    var firstKey = _tempOverrides.Keys.First();
+                    _tempOverrides.Remove(firstKey);
+                    RefreshOverrideList();
+                }
+                else if (_tempOverrides.Count > 1)
+                {
+                    MessageBox.Show("Vui lòng click chọn giờ tăng ca trong danh sách trước khi bấm Xóa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                return;
+            }
             var item = (OverrideItem)lstOverrides.SelectedItem;
             _tempOverrides.Remove(item.Date);
             RefreshOverrideList();

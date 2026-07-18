@@ -127,8 +127,8 @@ namespace OvertimeScheduler
                 var empData = _employees.Select(e => new
                 {
                     e.Id,
-                    LeavePeriods = e.LeavePeriods.Select(lp => new { lp.StartDate, lp.EndDate, lp.Note }).ToList(),
-                    FixedOvertimeHours = e.FixedOvertimeHours.ToDictionary(kvp => kvp.Key.ToString("yyyy-MM-dd"), kvp => kvp.Value)
+                    LeavePeriods = e.LeavePeriods.Select(lp => new { StartDate = lp.StartDate.Date, EndDate = lp.EndDate.Date, lp.Note }).ToList(),
+                    FixedOvertimeHours = e.FixedOvertimeHours.ToDictionary(kvp => kvp.Key.Date.ToString("yyyy-MM-dd"), kvp => kvp.Value)
                 }).ToList();
                 string json = JsonSerializer.Serialize(empData, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "employees_data.json"), json);
@@ -157,8 +157,8 @@ namespace OvertimeScheduler
                     {
                         foreach (var leafEl in leavesEl.EnumerateArray())
                         {
-                            DateTime start = leafEl.GetProperty("StartDate").GetDateTime();
-                            DateTime end = leafEl.GetProperty("EndDate").GetDateTime();
+                            DateTime start = leafEl.GetProperty("StartDate").GetDateTime().Date;
+                            DateTime end = leafEl.GetProperty("EndDate").GetDateTime().Date;
                             string note = leafEl.GetProperty("Note").GetString() ?? "";
                             emp.LeavePeriods.Add(new LeavePeriod(start, end, note));
                         }
