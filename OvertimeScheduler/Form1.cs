@@ -113,6 +113,66 @@ namespace OvertimeScheduler
             _isInitializing = false;
         }
 
+        private void SaveEmployeesData()
+        {
+            try
+            {
+                var empData = _employees.Select(e => new
+                {
+                    e.Id,
+                    LeavePeriods = e.LeavePeriods.Select(lp => new { lp.StartDate, lp.EndDate, lp.Note }).ToList(),
+                    FixedOvertimeHours = e.FixedOvertimeHours.ToDictionary(kvp => kvp.Key.ToString("yyyy-MM-dd"), kvp => kvp.Value)
+                }).ToList();
+                string json = JsonSerializer.Serialize(empData, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "employees_data.json"), json);
+            }
+            catch { }
+        }
+
+        private void LoadEmployeesData()
+        {
+            try
+            {
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "employees_data.json");
+                if (!File.Exists(path)) return;
+                string json = File.ReadAllText(path);
+                var raw = JsonSerializer.Deserialize<List<JsonElement>>(json);
+                if (raw == null) return;
+
+                foreach (var item in raw)
+                {
+                    string id = item.GetProperty("Id").GetString();
+                    var emp = _employees.FirstOrDefault(e => e.Id == id);
+                    if (emp == null) continue;
+
+                    emp.LeavePeriods.Clear();
+                    if (item.TryGetProperty("LeavePeriods", out var leavesEl))
+                    {
+                        foreach (var leafEl in leavesEl.EnumerateArray())
+                        {
+                            DateTime start = leafEl.GetProperty("StartDate").GetDateTime();
+                            DateTime end = leafEl.GetProperty("EndDate").GetDateTime();
+                            string note = leafEl.GetProperty("Note").GetString() ?? "";
+                            emp.LeavePeriods.Add(new LeavePeriod(start, end, note));
+                        }
+                    }
+
+                    emp.FixedOvertimeHours.Clear();
+                    if (item.TryGetProperty("FixedOvertimeHours", out var fixedEl))
+                    {
+                        foreach (var prop in fixedEl.EnumerateObject())
+                        {
+                            if (DateTime.TryParse(prop.Name, out DateTime dt))
+                            {
+                                emp.FixedOvertimeHours[dt] = prop.Value.GetDouble();
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
         private void InitializeIrisoHolidays2026()
         {
             _companyHolidays.Clear();
@@ -240,6 +300,7 @@ namespace OvertimeScheduler
                 }).ToList();
                 string json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(ScheduleSaveFile, json);
+                SaveEmployeesData();
             }
             catch { /* Không crash app nếu lỗi ghi file */ }
         }
@@ -249,6 +310,7 @@ namespace OvertimeScheduler
             try
             {
                 if (!File.Exists(ScheduleSaveFile)) return;
+                LoadEmployeesData();
                 string json = File.ReadAllText(ScheduleSaveFile);
                 var raw = JsonSerializer.Deserialize<List<JsonElement>>(json);
                 if (raw == null) return;
@@ -545,7 +607,7 @@ namespace OvertimeScheduler
                 Text = "+",
                 Font = new Font("Segoe UI", 12F, FontStyle.Bold),
                 ForeColor = Color.Red,
-                Size = new Size(245, 30),
+                Size = new Size(140, 30),
                 FlatStyle = FlatStyle.Flat,
                 Margin = new Padding(3, 3, 3, 5),
                 Cursor = Cursors.Hand,
@@ -624,10 +686,11 @@ namespace OvertimeScheduler
         private Panel CreateEmployeeCard(Employee emp, string location, LeavePeriod? leave = null)
         {
             bool isOnLeave = leave != null;
+            int cardWidth = (location == "Pool") ? 220 : 140;
 
             var cardPanel = new Panel
             {
-                Size = new Size(245, isOnLeave ? 45 : 30),
+                Size = new Size(cardWidth, isOnLeave ? 45 : 30),
                 BorderStyle = BorderStyle.None,
                 Margin = new Padding(3, 3, 3, 5),
                 Tag = emp.Id
@@ -711,13 +774,12 @@ namespace OvertimeScheduler
 
             if (!isOnLeave)
             {
-                // Nút X chỉ có khi không phải nghỉ phép
                 var btnDelete = new Button
                 {
                     Text = location == "Pool" ? "X" : "x",
                     Font = new Font("Segoe UI", 8F, FontStyle.Bold),
-                    Size = new Size(24, 20),
-                    Location = new Point(215, 5),
+                    Size = new Size(18, 18),
+                    Location = new Point(cardWidth - 22, (cardPanel.Height - 18) / 2),
                     FlatStyle = FlatStyle.Flat,
                     BackColor = Color.Transparent,
                     ForeColor = textColor

@@ -18,7 +18,7 @@ namespace OvertimeScheduler.Forms
             _employee = employee;
 
             // Sao chép dữ liệu tạm để hỗ trợ rollback khi nhấn Cancel
-            _tempLeavePeriods = employee.LeavePeriods.Select(lp => new LeavePeriod(lp.StartDate, lp.EndDate)).ToList();
+            _tempLeavePeriods = employee.LeavePeriods.Select(lp => new LeavePeriod(lp.StartDate, lp.EndDate, lp.Note)).ToList();
             _tempOverrides = employee.FixedOvertimeHours.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             lblEmpInfo.Text = $"Nhân viên: [{employee.Id}] - {employee.Name}";
