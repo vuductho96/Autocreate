@@ -612,11 +612,13 @@ namespace OvertimeScheduler
             }
 
             double totalScheduled = empHours.Values.Sum();
-            double budget = (double)numMonthlyBudget.Value;
-            double remaining = budget - totalScheduled;
+            double weekdayBudget = (double)numMonthlyBudget.Value;
+            double weekendBudget = (double)numWeekendBudget.Value;
+            double weekdayRemaining = weekdayBudget - weekdayScheduled;
+            double weekendRemaining = weekendBudget - weekendScheduled;
 
-            lblBudgetStatus.Text = $"Đã xếp: {totalScheduled:0} giờ (Ngày thường: {weekdayScheduled:0}h | Ngày nghỉ: {weekendScheduled:0}h) | Còn lại: {remaining:0} giờ";
-            if (remaining < 0)
+            lblBudgetStatus.Text = $"Đã xếp: {totalScheduled:0} giờ (Ngày thường: {weekdayScheduled:0}/{weekdayBudget:0}h | Ngày nghỉ: {weekendScheduled:0}/{weekendBudget:0}h) | Còn lại: Ngày thường: {weekdayRemaining:0}h, Ngày nghỉ: {weekendRemaining:0}h";
+            if (weekdayRemaining < 0 || weekendRemaining < 0)
             {
                 lblBudgetStatus.ForeColor = Color.Red;
             }

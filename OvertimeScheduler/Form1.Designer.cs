@@ -74,6 +74,8 @@ namespace OvertimeScheduler
             this.numMaxPerShift = new System.Windows.Forms.NumericUpDown();
             this.lblMonthlyBudget = new System.Windows.Forms.Label();
             this.numMonthlyBudget = new System.Windows.Forms.NumericUpDown();
+            this.lblWeekendBudget = new System.Windows.Forms.Label();
+            this.numWeekendBudget = new System.Windows.Forms.NumericUpDown();
 
             this.grpZaloConfig = new System.Windows.Forms.GroupBox();
             this.lblZalo = new System.Windows.Forms.Label();
@@ -99,6 +101,7 @@ namespace OvertimeScheduler
             this.panelHolidayHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxPerShift)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMonthlyBudget)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numWeekendBudget)).BeginInit();
             this.grpScheduleConfig.SuspendLayout();
             this.grpZaloConfig.SuspendLayout();
             this.SuspendLayout();
@@ -612,10 +615,12 @@ namespace OvertimeScheduler
             this.grpScheduleConfig.Controls.Add(this.numMaxPerShift);
             this.grpScheduleConfig.Controls.Add(this.lblMonthlyBudget);
             this.grpScheduleConfig.Controls.Add(this.numMonthlyBudget);
+            this.grpScheduleConfig.Controls.Add(this.lblWeekendBudget);
+            this.grpScheduleConfig.Controls.Add(this.numWeekendBudget);
             this.grpScheduleConfig.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.grpScheduleConfig.Location = new System.Drawing.Point(20, 20);
             this.grpScheduleConfig.Name = "grpScheduleConfig";
-            this.grpScheduleConfig.Size = new System.Drawing.Size(300, 120);
+            this.grpScheduleConfig.Size = new System.Drawing.Size(300, 145);
             this.grpScheduleConfig.TabIndex = 0;
             this.grpScheduleConfig.TabStop = false;
             this.grpScheduleConfig.Text = "Cấu hình thuật toán xếp ca";
@@ -651,9 +656,9 @@ namespace OvertimeScheduler
             this.lblMonthlyBudget.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblMonthlyBudget.Location = new System.Drawing.Point(12, 68);
             this.lblMonthlyBudget.Name = "lblMonthlyBudget";
-            this.lblMonthlyBudget.Size = new System.Drawing.Size(115, 17);
+            this.lblMonthlyBudget.Size = new System.Drawing.Size(140, 17);
             this.lblMonthlyBudget.TabIndex = 3;
-            this.lblMonthlyBudget.Text = "Quỹ 1 tháng (giờ):";
+            this.lblMonthlyBudget.Text = "Quỹ ngày thường (giờ):";
 
             // 
             // numMonthlyBudget
@@ -664,8 +669,31 @@ namespace OvertimeScheduler
             this.numMonthlyBudget.Name = "numMonthlyBudget";
             this.numMonthlyBudget.Size = new System.Drawing.Size(60, 25);
             this.numMonthlyBudget.TabIndex = 4;
-            this.numMonthlyBudget.Value = new decimal(new int[] { 200, 0, 0, 0 });
+            this.numMonthlyBudget.Value = new decimal(new int[] { 300, 0, 0, 0 });
             this.numMonthlyBudget.ValueChanged += new System.EventHandler(this.numMonthlyBudget_ValueChanged);
+
+            // 
+            // lblWeekendBudget
+            // 
+            this.lblWeekendBudget.AutoSize = true;
+            this.lblWeekendBudget.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblWeekendBudget.Location = new System.Drawing.Point(12, 106);
+            this.lblWeekendBudget.Name = "lblWeekendBudget";
+            this.lblWeekendBudget.Size = new System.Drawing.Size(140, 17);
+            this.lblWeekendBudget.TabIndex = 5;
+            this.lblWeekendBudget.Text = "Quỹ ngày nghỉ (giờ):";
+
+            // 
+            // numWeekendBudget
+            // 
+            this.numWeekendBudget.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.numWeekendBudget.Location = new System.Drawing.Point(160, 102);
+            this.numWeekendBudget.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
+            this.numWeekendBudget.Name = "numWeekendBudget";
+            this.numWeekendBudget.Size = new System.Drawing.Size(60, 25);
+            this.numWeekendBudget.TabIndex = 6;
+            this.numWeekendBudget.Value = new decimal(new int[] { 200, 0, 0, 0 });
+            this.numWeekendBudget.ValueChanged += new System.EventHandler(this.numMonthlyBudget_ValueChanged);
 
             // 
             // grpZaloConfig
@@ -756,6 +784,7 @@ namespace OvertimeScheduler
             this.grpScheduleConfig.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxPerShift)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMonthlyBudget)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numWeekendBudget)).EndInit();
             this.grpZaloConfig.ResumeLayout(false);
             this.grpZaloConfig.PerformLayout();
             this.ResumeLayout(false);
@@ -809,6 +838,8 @@ namespace OvertimeScheduler
         private System.Windows.Forms.NumericUpDown numMaxPerShift;
         private System.Windows.Forms.Label lblMonthlyBudget;
         private System.Windows.Forms.NumericUpDown numMonthlyBudget;
+        private System.Windows.Forms.Label lblWeekendBudget;
+        private System.Windows.Forms.NumericUpDown numWeekendBudget;
 
         private System.Windows.Forms.GroupBox grpZaloConfig;
         private System.Windows.Forms.Label lblZalo;
