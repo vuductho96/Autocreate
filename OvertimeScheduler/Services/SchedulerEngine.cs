@@ -42,15 +42,39 @@ namespace OvertimeScheduler.Services
             DateTime toDate, 
             bool saturdayWorking = false, 
             int maxPerShift = 2,
-            List<DateTime> holidays = null)
+            List<DateTime> holidays = null,
+            double weekdayBudget = 300,
+            double weekendBudget = 200)
         {
             var schedule = new List<ScheduleEntry>();
             var activeEmployees = employees.ToList();
+            var holidayDates = holidays ?? new List<DateTime>();
             
             // Map để theo dõi tổng số tiếng tăng ca của mỗi nhân sự
             var shiftHours = activeEmployees.ToDictionary(e => e.Id, e => 0.0);
             
-            // 1. Đăng ký trước các giờ làm thêm cố định
+            // 1. Đăng ký trước các giờ làm thêm cố định và đếm số ngày thường / ngày nghỉ trong khoảng thời gian
+            double weekdayFixedHours = 0;
+            double weekendFixedHours = 0;
+            int numWeekdays = 0;
+            int numWeekendDays = 0;
+
+            for (var d = fromDate.Date; d <= toDate.Date; d = d.AddDays(1))
+            {
+                bool isWeekendOrHoliday = d.DayOfWeek == DayOfWeek.Saturday || 
+                                         d.DayOfWeek == DayOfWeek.Sunday || 
+                                         holidayDates.Contains(d);
+                if (d.DayOfWeek == DayOfWeek.Saturday && saturdayWorking)
+                {
+                    isWeekendOrHoliday = false;
+                }
+
+                if (isWeekendOrHoliday)
+                    numWeekendDays++;
+                else
+                    numWeekdays++;
+            }
+
             foreach (var emp in activeEmployees)
             {
                 foreach (var kvp in emp.FixedOvertimeHours)
@@ -58,8 +82,52 @@ namespace OvertimeScheduler.Services
                     if (kvp.Key >= fromDate.Date && kvp.Key <= toDate.Date)
                     {
                         shiftHours[emp.Id] += kvp.Value;
+
+                        bool isWeekendOrHoliday = kvp.Key.DayOfWeek == DayOfWeek.Saturday || 
+                                                 kvp.Key.DayOfWeek == DayOfWeek.Sunday || 
+                                                 holidayDates.Contains(kvp.Key.Date);
+                        if (kvp.Key.DayOfWeek == DayOfWeek.Saturday && saturdayWorking)
+                        {
+                            isWeekendOrHoliday = false;
+                        }
+
+                        if (isWeekendOrHoliday)
+                            weekendFixedHours += kvp.Value;
+                        else
+                            weekdayFixedHours += kvp.Value;
                     }
                 }
+            }
+
+            // Tính toán động giới hạn số người tối đa/ca dựa trên ngân sách quỹ giờ
+            int maxPerShiftWeekday = maxPerShift;
+            if (numWeekdays > 0)
+            {
+                double weekdayBudgetAvailable = weekdayBudget - weekdayFixedHours - (4.0 * numWeekdays); // Trừ đi ca hành chính mặc định
+                if (weekdayBudgetAvailable < 0) weekdayBudgetAvailable = 0;
+                double weekdaySlotsAvailable = weekdayBudgetAvailable / (4.0 * numWeekdays);
+                double weekdaySlotsPerShift = weekdaySlotsAvailable / 2.0; // chia cho CA 1 và CA 3
+                maxPerShiftWeekday = (int)Math.Floor(weekdaySlotsPerShift);
+                maxPerShiftWeekday = Math.Max(0, Math.Min(maxPerShift, maxPerShiftWeekday));
+            }
+            else
+            {
+                maxPerShiftWeekday = 0;
+            }
+
+            int maxPerShiftWeekend = maxPerShift;
+            if (numWeekendDays > 0)
+            {
+                double weekendBudgetAvailable = weekendBudget - weekendFixedHours - (12.0 * numWeekendDays); // Trừ đi ca hành chính mặc định
+                if (weekendBudgetAvailable < 0) weekendBudgetAvailable = 0;
+                double weekendSlotsAvailable = weekendBudgetAvailable / (12.0 * numWeekendDays);
+                double weekendSlotsPerShift = weekendSlotsAvailable / 2.0; // chia cho CA 1 và CA 3
+                maxPerShiftWeekend = (int)Math.Floor(weekendSlotsPerShift);
+                maxPerShiftWeekend = Math.Max(0, Math.Min(maxPerShift, maxPerShiftWeekend));
+            }
+            else
+            {
+                maxPerShiftWeekend = 0;
             }
 
             var rand = new Random();
@@ -78,6 +146,11 @@ namespace OvertimeScheduler.Services
             // 3. Xếp ca cho từng Key Date
             foreach (var date in keyDates)
             {
+                bool isWeekendKey = date.DayOfWeek == DayOfWeek.Saturday || 
+                                  date.DayOfWeek == DayOfWeek.Sunday || 
+                                  holidayDates.Contains(date.Date);
+                int targetMax = isWeekendKey ? maxPerShiftWeekend : maxPerShiftWeekday;
+
                 var dayEntry = new ScheduleEntry(date, "Ngày");
                 var ca2Entry = new ScheduleEntry(date, "Ca2");
                 var nightEntry = new ScheduleEntry(date, "Đêm");
@@ -129,7 +202,14 @@ namespace OvertimeScheduler.Services
                         {
                             if (!picked.FixedOvertimeHours.ContainsKey(day))
                             {
-                                hoursToAdd += 4.0;
+                                bool isWeekend = day.DayOfWeek == DayOfWeek.Saturday || 
+                                                 day.DayOfWeek == DayOfWeek.Sunday || 
+                                                 holidayDates.Contains(day.Date);
+                                if (day.DayOfWeek == DayOfWeek.Saturday && saturdayWorking)
+                                {
+                                    isWeekend = false;
+                                }
+                                hoursToAdd += isWeekend ? 12.0 : 4.0;
                             }
                         }
                         shiftHours[picked.Id] += hoursToAdd;
@@ -158,7 +238,7 @@ namespace OvertimeScheduler.Services
                     ((e.Role == EmployeeRole.Worker || e.Role == EmployeeRole.NewWorker) && GetShiftRotationForWeek(e.Id, date) == 0)
                 ).ToList();
 
-                while (dayEntry.EmployeeIds.Count < maxPerShift)
+                while (dayEntry.EmployeeIds.Count < targetMax)
                 {
                     var emp = PickEmployee(poolDay, pickedToday);
                     if (emp == null) break;
@@ -172,7 +252,7 @@ namespace OvertimeScheduler.Services
                     ((e.Role == EmployeeRole.Worker || e.Role == EmployeeRole.NewWorker) && GetShiftRotationForWeek(e.Id, date) == 1)
                 ).ToList();
 
-                while (nightEntry.EmployeeIds.Count < maxPerShift)
+                while (nightEntry.EmployeeIds.Count < targetMax)
                 {
                     var emp = PickEmployee(poolNight, pickedToday, e => e.Role != EmployeeRole.NewWorker && e.Role != EmployeeRole.Leader);
                     if (emp == null) emp = PickEmployee(poolNight, pickedToday);

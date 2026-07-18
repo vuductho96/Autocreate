@@ -439,7 +439,10 @@ namespace OvertimeScheduler
             int maxPerShift = (int)numMaxPerShift.Value;
             var holidayDates = _companyHolidays.Select(h => h.Date).ToList();
 
-            _schedule = SchedulerEngine.AutoSchedule(_employees, start, end, false, maxPerShift, holidayDates);
+            double weekdayBudget = (double)numMonthlyBudget.Value;
+            double weekendBudget = (double)numWeekendBudget.Value;
+
+            _schedule = SchedulerEngine.AutoSchedule(_employees, start, end, false, maxPerShift, holidayDates, weekdayBudget, weekendBudget);
             SaveSchedule();
             RedrawActiveDay();
             RefreshHolidaysUI(); // Cập nhật lịch ngày nghỉ để hiện mã NV nghỉ phép
