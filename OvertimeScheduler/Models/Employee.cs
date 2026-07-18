@@ -104,13 +104,6 @@ namespace OvertimeScheduler.Models
                             {
                                 role = EmployeeRole.NewWorker;
                             }
-                            else
-                            {
-                                int hash = id.GetHashCode();
-                                if (hash % 30 == 0) role = EmployeeRole.Leader;
-                                else if (hash % 18 == 1) role = EmployeeRole.Technician;
-                                else if (hash % 15 == 2) role = EmployeeRole.NewWorker;
-                            }
 
                             list.Add(new Employee(id, name, role));
                         }

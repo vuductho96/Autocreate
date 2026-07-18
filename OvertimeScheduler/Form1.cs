@@ -22,6 +22,7 @@ namespace OvertimeScheduler
         private List<CompanyHoliday> _companyHolidays;
         private DateTime _currentCalendarMonth;
         private Button[] _calendarButtons = new Button[42];
+        private bool _isInitializing = true;
         
         // Đường dẫn file lưu lịch
         private static readonly string ScheduleSaveFile = Path.Combine(
@@ -108,6 +109,8 @@ namespace OvertimeScheduler
             {
                 RedrawActiveDay();
             }
+
+            _isInitializing = false;
         }
 
         private void InitializeIrisoHolidays2026()
@@ -631,11 +634,11 @@ namespace OvertimeScheduler
             Color textColor = isOnLeave ? Color.FromArgb(130, 80, 0)
                 : (emp.Role == EmployeeRole.Technician || emp.Role == EmployeeRole.NewWorker) ? Color.White : Color.Black;
 
-            string roleName = isOnLeave ? "NGHỈ PHÉP" : GetRoleNameVietnamese(emp.Role);
+            string cardText = isOnLeave ? $"{emp.Id} - {emp.Name} (NGHỈ PHÉP)" : $"{emp.Id} - {emp.Name}";
             
             var lblName = new Label
             {
-                Text = $"{emp.Id} - {emp.Name} ({roleName})",
+                Text = cardText,
                 Font = new Font("Segoe UI", 8.5F, isOnLeave ? FontStyle.Bold : FontStyle.Regular),
                 ForeColor = textColor,
                 Location = new Point(5, 5),
@@ -745,6 +748,7 @@ namespace OvertimeScheduler
         #region Điều khiển Giao diện (Event Handlers)
         private void dtpDateRange_ValueChanged(object sender, EventArgs e)
         {
+            if (_isInitializing) return;
             InitDateComboBox();
             RunAutoSchedule();
         }
